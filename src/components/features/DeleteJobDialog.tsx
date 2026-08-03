@@ -65,7 +65,10 @@ export function DeleteJobDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger render={trigger as React.ReactElement} />
+      <AlertDialogTrigger
+        nativeButton={false}
+        render={trigger as React.ReactElement}
+      />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Eliminar postulación?</AlertDialogTitle>

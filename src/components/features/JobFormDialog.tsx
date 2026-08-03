@@ -85,7 +85,10 @@ export function JobFormDialog({ job, trigger }: JobFormDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={(trigger ?? defaultTrigger) as React.ReactElement} />
+      <DialogTrigger
+        nativeButton={!trigger}
+        render={(trigger ?? defaultTrigger) as React.ReactElement}
+      />
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
