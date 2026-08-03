@@ -9,7 +9,6 @@ import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -19,16 +18,22 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CircleNotch, Trash, WarningOctagon } from "@phosphor-icons/react";
+import { CircleNotch, Trash, WarningOctagon, ArrowLeft } from "@phosphor-icons/react";
 
 export function DeleteAccountCard() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"password" | "final_warning">("password");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleDeleteAccount(e: React.FormEvent) {
-    e.preventDefault();
+  const resetModal = () => {
+    setOpen(false);
+    setStep("password");
+    setPassword("");
+  };
+
+  async function handleDeleteAccount() {
     if (!password) return;
     setIsLoading(true);
 
@@ -41,6 +46,7 @@ export function DeleteAccountCard() {
           description: result.error,
           type: "error",
         });
+        setStep("password");
         return;
       }
 
@@ -50,7 +56,7 @@ export function DeleteAccountCard() {
         type: "info",
       });
 
-      setOpen(false);
+      resetModal();
       router.push("/login");
       router.refresh();
     } catch {
@@ -59,9 +65,16 @@ export function DeleteAccountCard() {
         description: "Inténtalo de nuevo más tarde",
         type: "error",
       });
+      setStep("password");
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function handleProceedToWarning(e: React.FormEvent) {
+    e.preventDefault();
+    if (!password) return;
+    setStep("final_warning");
   }
 
   return (
@@ -80,7 +93,10 @@ export function DeleteAccountCard() {
         </div>
       </CardHeader>
       <CardContent>
-        <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialog open={open} onOpenChange={(val) => {
+          if (!val) resetModal();
+          else setOpen(true);
+        }}>
           <AlertDialogTrigger
             nativeButton={false}
             render={
@@ -90,50 +106,94 @@ export function DeleteAccountCard() {
               </Button>
             }
           />
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-destructive">
-                ¿Estás completamente seguro?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción eliminará tu cuenta y todas tus postulaciones registradas. Para confirmar, ingresa tu contraseña actual.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
+          <AlertDialogContent className="sm:max-w-md">
+            {step === "password" ? (
+              <>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-destructive">
+                    Paso 1: Confirma tu contraseña
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Para continuar con la eliminación de tu cuenta, ingresa tu contraseña actual para verificar tu identidad.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
 
-            <form onSubmit={handleDeleteAccount} className="space-y-4 py-2">
-              <div className="space-y-2">
-                <Label htmlFor="delete-password">Confirma tu Contraseña</Label>
-                <PasswordInput
-                  id="delete-password"
-                  placeholder="Ingresa tu contraseña actual"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={isLoading}
-                />
-              </div>
+                <form onSubmit={handleProceedToWarning} className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="delete-password">Contraseña actual</Label>
+                    <PasswordInput
+                      id="delete-password"
+                      placeholder="Ingresa tu contraseña"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
 
-              <AlertDialogFooter className="pt-2">
-                <AlertDialogCancel disabled={isLoading} onClick={() => setPassword("")}>
-                  Cancelar
-                </AlertDialogCancel>
-                <Button
-                  type="submit"
-                  variant="destructive"
-                  disabled={isLoading || !password}
-                  className="gap-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <CircleNotch className="h-4 w-4 animate-spin" />
-                      Eliminando...
-                    </>
-                  ) : (
-                    "Sí, eliminar cuenta"
-                  )}
-                </Button>
-              </AlertDialogFooter>
-            </form>
+                  <AlertDialogFooter className="pt-2">
+                    <AlertDialogCancel disabled={isLoading} onClick={resetModal}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <Button
+                      type="submit"
+                      variant="destructive"
+                      disabled={!password || isLoading}
+                    >
+                      Siguiente: Confirmar
+                    </Button>
+                  </AlertDialogFooter>
+                </form>
+              </>
+            ) : (
+              /* Step 2: Final Warning */
+              <>
+                <AlertDialogHeader>
+                  <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/15 text-destructive animate-bounce">
+                    <WarningOctagon className="h-7 w-7" weight="fill" />
+                  </div>
+                  <AlertDialogTitle className="text-center text-destructive text-xl font-extrabold">
+                    🚨 ¡ÚLTIMA ADVERTENCIA!
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-center text-sm text-foreground/90 pt-1 leading-relaxed">
+                    Estás a punto de borrar <strong className="text-destructive">definitivamente</strong> tu cuenta y todas tus postulaciones. Esta acción es <strong className="text-destructive">IRREVERSIBLE</strong> y no podrás recuperar tu información.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive font-medium text-center my-2">
+                  ¿Estás 100% seguro de que deseas proceder?
+                </div>
+
+                <AlertDialogFooter className="pt-2 flex-col sm:flex-row gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setStep("password")}
+                    disabled={isLoading}
+                    className="gap-1"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Volver
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDeleteAccount}
+                    disabled={isLoading}
+                    className="gap-2 font-bold"
+                  >
+                    {isLoading ? (
+                      <>
+                        <CircleNotch className="h-4 w-4 animate-spin" />
+                        Eliminando cuenta...
+                      </>
+                    ) : (
+                      "SÍ, ELIMINAR CUENTA DEFINITIVAMENTE"
+                    )}
+                  </Button>
+                </AlertDialogFooter>
+              </>
+            )}
           </AlertDialogContent>
         </AlertDialog>
       </CardContent>
