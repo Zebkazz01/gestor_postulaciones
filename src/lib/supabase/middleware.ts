@@ -36,9 +36,10 @@ export async function updateSession(request: NextRequest) {
 
   const isAuthPage = request.nextUrl.pathname === "/login";
   const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+  const isResetPassword = request.nextUrl.pathname === "/reset-password";
 
-  // Not authenticated and trying to access dashboard → redirect to login
-  if (!user && isDashboard) {
+  // Not authenticated and trying to access dashboard or reset-password → redirect to login
+  if (!user && (isDashboard || isResetPassword)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

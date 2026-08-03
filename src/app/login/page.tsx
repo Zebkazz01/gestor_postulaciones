@@ -15,12 +15,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Briefcase, Loader2 } from "lucide-react";
+import { Briefcase, Loader2, KeyRound } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isResetLoading, setIsResetLoading] = useState(false);
+  const [forgotDialogOpen, setForgotDialogOpen] = useState(false);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,9 +49,10 @@ export default function LoginPage() {
       if (error) {
         toast.add({
           title: "Error al iniciar sesión",
-          description: error.message === "Invalid login credentials"
-            ? "Email o contraseña incorrectos"
-            : error.message,
+          description:
+            error.message === "Invalid login credentials"
+              ? "Email o contraseña incorrectos"
+              : error.message,
           type: "error",
         });
         return;
@@ -111,7 +121,9 @@ export default function LoginPage() {
           error.status === 422;
 
         toast.add({
-          title: isAlreadyRegistered ? "Esta cuenta ya existe" : "Error al registrarse",
+          title: isAlreadyRegistered
+            ? "Esta cuenta ya existe"
+            : "Error al registrarse",
           description: isAlreadyRegistered
             ? "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'."
             : error.message,
@@ -121,10 +133,15 @@ export default function LoginPage() {
       }
 
       // Supabase default protection: if user already exists, signUp returns user with empty identities array
-      if (data?.user && data.user.identities && data.user.identities.length === 0) {
+      if (
+        data?.user &&
+        data.user.identities &&
+        data.user.identities.length === 0
+      ) {
         toast.add({
           title: "Esta cuenta ya existe",
-          description: "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'.",
+          description:
+            "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'.",
           type: "warning",
         });
         return;
@@ -146,6 +163,48 @@ export default function LoginPage() {
       });
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleForgotPassword(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsResetLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("reset-email") as string;
+
+    try {
+      const supabase = createClient();
+      const origin = window.location.origin;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${origin}/auth/callback?next=/reset-password`,
+      });
+
+      if (error) {
+        toast.add({
+          title: "Error al enviar correo",
+          description: error.message,
+          type: "error",
+        });
+        return;
+      }
+
+      toast.add({
+        title: "¡Correo de recuperación enviado!",
+        description:
+          "Revisa tu bandeja de entrada para hacer clic en el enlace y restablecer tu contraseña.",
+        type: "success",
+      });
+
+      setForgotDialogOpen(false);
+    } catch {
+      toast.add({
+        title: "Error inesperado",
+        description: "Inténtalo de nuevo más tarde",
+        type: "error",
+      });
+    } finally {
+      setIsResetLoading(false);
     }
   }
 
@@ -194,7 +253,16 @@ export default function LoginPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">Contraseña</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="login-password">Contraseña</Label>
+                    <button
+                      type="button"
+                      onClick={() => setForgotDialogOpen(true)}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
                   <Input
                     id="login-password"
                     name="password"
@@ -286,6 +354,59 @@ export default function LoginPage() {
           </CardContent>
         </Tabs>
       </Card>
+
+      {/* Forgot Password Dialog */}
+      <Dialog open={forgotDialogOpen} onOpenChange={setForgotDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <KeyRound className="h-5 w-5" />
+            </div>
+            <DialogTitle className="text-center">
+              Recuperar contraseña
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              Ingresa tu correo electrónico registrado y te enviaremos un enlace
+              para cambiar tu contraseña.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Correo Electrónico</Label>
+              <Input
+                id="reset-email"
+                name="reset-email"
+                type="email"
+                placeholder="tu@email.com"
+                required
+                disabled={isResetLoading}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setForgotDialogOpen(false)}
+                disabled={isResetLoading}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isResetLoading}>
+                {isResetLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  "Enviar Enlace"
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <p className="mt-6 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground transition-colors">
