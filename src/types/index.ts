@@ -37,3 +37,19 @@ export interface JobFormData {
   contact_phone?: string;
   location?: string;
 }
+
+export interface JobReminder {
+  id: string;
+  user_id: string;
+  job_id: string;
+  title: string;
+  meeting_date: string;
+  notes?: string | null;
+  created_at: string;
+  // Relación opcional cargada desde jobs
+  jobs?: {
+    company_name: string;
+    role_title: string;
+    status: JobStatus;
+  } | null;
+}

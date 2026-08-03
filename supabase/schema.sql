@@ -57,3 +57,24 @@ BEGIN
   DELETE FROM auth.users WHERE id = auth.uid();
 END;
 $$;
+
+-- 6. Tabla para Reuniones y Recordatorios vinculados a postulaciones
+CREATE TABLE IF NOT EXISTS job_reminders (
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id      uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  job_id       uuid REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
+  title        text NOT NULL,
+  meeting_date timestamptz NOT NULL,
+  notes        text,
+  created_at   timestamptz DEFAULT now()
+);
+
+ALTER TABLE job_reminders ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Usuarios gestionan sus propios recordatorios"
+  ON job_reminders FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE INDEX IF NOT EXISTS idx_job_reminders_user_id ON job_reminders(user_id);
+CREATE INDEX IF NOT EXISTS idx_job_reminders_job_id ON job_reminders(job_id);

@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Briefcase, SignOut, User, SquaresFour, CaretDown, CheckCircle } from "@phosphor-icons/react";
+import { Briefcase, SignOut, User, SquaresFour, CaretDown, CalendarBlank } from "@phosphor-icons/react";
 
 interface DashboardHeaderProps {
   email: string;
@@ -31,6 +31,7 @@ export function DashboardHeader({
   const displayName = fullName || email.split("@")[0];
 
   const isPostulacionesActive = pathname === "/dashboard";
+  const isCalendarActive = pathname === "/dashboard/calendar";
   const isProfileActive = pathname === "/dashboard/profile";
 
   async function handleSignOut() {
@@ -81,6 +82,19 @@ export function DashboardHeader({
                 <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
               )}
               Postulaciones
+            </Link>
+            <Link
+              href="/dashboard/calendar"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                isCalendarActive
+                  ? "bg-primary/10 text-primary font-bold border border-primary/20 shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
+            >
+              {isCalendarActive && (
+                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              )}
+              Calendario
             </Link>
             <Link
               href="/dashboard/profile"
@@ -135,6 +149,10 @@ export function DashboardHeader({
               <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                 <SquaresFour className="mr-2 h-4 w-4" />
                 Postulaciones
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/calendar")}>
+                <CalendarBlank className="mr-2 h-4 w-4" />
+                Calendario
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
                 <User className="mr-2 h-4 w-4" />
