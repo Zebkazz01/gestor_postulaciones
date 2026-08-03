@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Job, JobReminder } from "@/types";
 import { createReminder, deleteReminder } from "@/actions/reminders";
 import { toast } from "@/components/ui/toast";
+import { ReminderDetailDialog } from "@/components/features/ReminderDetailDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,8 +36,6 @@ import {
   CheckCircle,
   CaretLeft,
   CaretRight,
-  CalendarCheck,
-  ListNumbers,
   Rows,
 } from "@phosphor-icons/react";
 
@@ -56,6 +55,10 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [prefilledDate, setPrefilledDate] = useState<string>("");
+
+  // State for Meeting Event Details Modal
+  const [selectedReminder, setSelectedReminder] = useState<JobReminder | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   // Filter reminders by selected job
   const filteredReminders = reminders.filter((r) => {
@@ -95,6 +98,12 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
     setIsDialogOpen(true);
   };
 
+  const handleOpenReminderDetail = (reminder: JobReminder, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSelectedReminder(reminder);
+    setIsDetailOpen(true);
+  };
+
   async function handleCreateReminder(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
@@ -131,7 +140,8 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
     }
   }
 
-  async function handleDeleteReminder(id: string) {
+  async function handleDeleteReminder(id: string, e?: React.MouseEvent) {
+    if (e) e.stopPropagation();
     try {
       const result = await deleteReminder(id);
       if (!result.success) {
@@ -166,16 +176,13 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const calendarCells = [];
-  // Empty cells before month start
   for (let i = 0; i < startingDayOfWeek; i++) {
     calendarCells.push(null);
   }
-  // Days of month
   for (let d = 1; d <= daysInMonth; d++) {
     calendarCells.push(new Date(year, month, d));
   }
 
-  // Helpers to match date string YYYY-MM-DD
   const isSameDay = (d1: Date, d2: Date) =>
     d1.getFullYear() === d2.getFullYear() &&
     d1.getMonth() === d2.getMonth() &&
@@ -194,13 +201,12 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
             Calendario de Reuniones
           </h2>
           <p className="text-sm text-muted-foreground">
-            Planifica entrevistas, pruebas técnicas y llamadas por fecha y hora.
+            Planifica entrevistas, pruebas técnicas y llamadas. Haz clic en cualquier reunión para modificarla o mover su fecha.
           </p>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger
-            nativeButton={false}
             render={
               <Button className="gap-2 shrink-0">
                 <Plus className="h-4 w-4" weight="bold" />
@@ -341,7 +347,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
             </Select>
           </div>
 
-          {/* View Modes Switcher: Mes, Semana, Día, Bandeja */}
+          {/* View Modes Switcher */}
           <div className="flex items-center rounded-lg border border-border/50 bg-muted/40 p-0.5">
             <Button
               variant={viewMode === "mes" ? "secondary" : "ghost"}
@@ -437,13 +443,14 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                     </button>
                   </div>
 
-                  {/* Day Reminders Badges */}
+                  {/* Day Reminders Badges -> Click opens ReminderDetailDialog */}
                   <div className="space-y-1 mt-1 flex-1 overflow-y-auto max-h-[80px]">
                     {dayReminders.map((r) => (
                       <div
                         key={r.id}
-                        className="rounded-md bg-primary/15 border border-primary/25 px-1.5 py-0.5 text-[11px] font-semibold text-primary truncate"
-                        title={`${r.title} (${new Date(r.meeting_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})`}
+                        onClick={(e) => handleOpenReminderDetail(r, e)}
+                        className="rounded-md bg-primary/15 border border-primary/25 px-1.5 py-0.5 text-[11px] font-semibold text-primary truncate hover:bg-primary/30 transition-colors cursor-pointer"
+                        title={`${r.title} (Haz clic para ver detalles o modificar fecha)`}
                       >
                         {new Date(r.meeting_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} {r.title}
                       </div>
@@ -460,7 +467,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
         /* Week View */
         <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-4">
           <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">
-            Reuniones de la Semana
+            Reuniones de la Semana (Haz clic en un evento para modificarlo)
           </h3>
           <div className="grid gap-3 sm:grid-cols-7">
             {[0, 1, 2, 3, 4, 5, 6].map((offset) => {
@@ -490,7 +497,11 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
 
                     <div className="space-y-1.5">
                       {dayReminders.map((r) => (
-                        <div key={r.id} className="p-1.5 rounded-lg bg-primary/10 border border-primary/20 text-xs">
+                        <div
+                          key={r.id}
+                          onClick={(e) => handleOpenReminderDetail(r, e)}
+                          className="p-1.5 rounded-lg bg-primary/10 border border-primary/20 text-xs cursor-pointer hover:bg-primary/25 transition-colors"
+                        >
                           <p className="font-bold text-primary truncate">{r.title}</p>
                           <p className="text-[10px] text-muted-foreground">
                             {new Date(r.meeting_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -523,7 +534,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
               <h3 className="text-lg font-bold">
                 {currentDate.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
               </h3>
-              <p className="text-xs text-muted-foreground">Reuniones agendadas para esta fecha</p>
+              <p className="text-xs text-muted-foreground">Haz clic en una reunión para modificarla o mover su fecha</p>
             </div>
             <Button size="sm" onClick={() => handleOpenDialogForDate(currentDate)} className="gap-1.5">
               <Plus className="h-4 w-4" /> Agregar evento hoy
@@ -537,7 +548,11 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
               </div>
             ) : (
               getRemindersForDay(currentDate).map((r) => (
-                <div key={r.id} className="flex items-center justify-between p-4 rounded-xl border border-primary/30 bg-primary/5">
+                <div
+                  key={r.id}
+                  onClick={() => handleOpenReminderDetail(r)}
+                  className="flex items-center justify-between p-4 rounded-xl border border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/60 hover:shadow-sm transition-all"
+                >
                   <div className="space-y-1">
                     <span className="text-xs font-bold text-primary">
                       {new Date(r.meeting_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -549,9 +564,19 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                       </p>
                     )}
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteReminder(r.id)} className="text-destructive">
-                    <Trash className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="text-xs gap-1">
+                      Detalles / Modificar
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleDeleteReminder(r.id, e)}
+                      className="text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))
             )}
@@ -579,9 +604,10 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                 return (
                   <div
                     key={reminder.id}
-                    className={`flex flex-col justify-between rounded-2xl border p-5 shadow-xs transition-all ${
+                    onClick={() => handleOpenReminderDetail(reminder)}
+                    className={`flex flex-col justify-between rounded-2xl border p-5 shadow-xs transition-all cursor-pointer ${
                       isPast
-                        ? "border-border/40 bg-card/60 opacity-80"
+                        ? "border-border/40 bg-card/60 opacity-80 hover:opacity-100"
                         : "border-primary/30 bg-card hover:border-primary/60 hover:shadow-md"
                     }`}
                   >
@@ -609,7 +635,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDeleteReminder(reminder.id)}
+                          onClick={(e) => handleDeleteReminder(reminder.id, e)}
                           className="h-7 w-7 text-muted-foreground hover:text-destructive"
                           title="Eliminar recordatorio"
                         >
@@ -648,6 +674,9 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                           </>
                         )}
                       </span>
+                      <span className="text-[11px] font-semibold text-primary">
+                        Ver detalles / Modificar →
+                      </span>
                     </div>
                   </div>
                 );
@@ -656,6 +685,14 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
           )}
         </div>
       )}
+
+      {/* Reminder Detail / Reschedule Modal */}
+      <ReminderDetailDialog
+        reminder={selectedReminder}
+        jobs={jobs}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
     </div>
   );
 }

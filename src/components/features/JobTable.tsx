@@ -466,7 +466,6 @@ function JobActions({ job, reminders = [] }: { job: Job; reminders?: JobReminder
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          nativeButton={false}
           render={
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <DotsThree className="h-5 w-5" weight="bold" />

@@ -77,7 +77,6 @@ export function GlobalTraceabilityDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
-        nativeButton={false}
         render={
           <Button variant="outline" className="gap-2 text-xs font-semibold shadow-2xs h-9">
             <ClockCounterClockwise className="h-4 w-4 text-primary" weight="bold" />
