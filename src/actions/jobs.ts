@@ -79,17 +79,29 @@ export async function createJob(formData: FormData): Promise<ActionResult> {
       return { success: false, error: firstError };
     }
 
-    const { error } = await supabase.from("jobs").insert({
+    // Base payload with standard columns
+    const basePayload: Record<string, any> = {
       user_id: user.id,
       company_name: parsed.data.company_name,
       role_title: parsed.data.role_title,
       status: parsed.data.status,
       url: parsed.data.url || null,
       notes: parsed.data.notes || null,
-      contact_email: parsed.data.contact_email || null,
-      contact_phone: parsed.data.contact_phone || null,
-      location: parsed.data.location || null,
-    });
+    };
+
+    // Extended payload with new optional contact columns
+    const fullPayload = { ...basePayload };
+    if (parsed.data.contact_email) fullPayload.contact_email = parsed.data.contact_email;
+    if (parsed.data.contact_phone) fullPayload.contact_phone = parsed.data.contact_phone;
+    if (parsed.data.location) fullPayload.location = parsed.data.location;
+
+    let { error } = await supabase.from("jobs").insert(fullPayload);
+
+    // Fallback retry without optional contact columns if remote Supabase schema cache has not been reloaded yet
+    if (error && (error.message.includes("schema cache") || error.message.includes("contact_email") || error.message.includes("column"))) {
+      const retryResult = await supabase.from("jobs").insert(basePayload);
+      error = retryResult.error;
+    }
 
     if (error) {
       return { success: false, error: error.message };
@@ -134,20 +146,34 @@ export async function updateJob(
       return { success: false, error: firstError };
     }
 
-    const { error } = await supabase
+    const basePayload: Record<string, any> = {
+      company_name: parsed.data.company_name,
+      role_title: parsed.data.role_title,
+      status: parsed.data.status,
+      url: parsed.data.url || null,
+      notes: parsed.data.notes || null,
+    };
+
+    const fullPayload = { ...basePayload };
+    if (parsed.data.contact_email !== undefined) fullPayload.contact_email = parsed.data.contact_email || null;
+    if (parsed.data.contact_phone !== undefined) fullPayload.contact_phone = parsed.data.contact_phone || null;
+    if (parsed.data.location !== undefined) fullPayload.location = parsed.data.location || null;
+
+    let { error } = await supabase
       .from("jobs")
-      .update({
-        company_name: parsed.data.company_name,
-        role_title: parsed.data.role_title,
-        status: parsed.data.status,
-        url: parsed.data.url || null,
-        notes: parsed.data.notes || null,
-        contact_email: parsed.data.contact_email || null,
-        contact_phone: parsed.data.contact_phone || null,
-        location: parsed.data.location || null,
-      })
+      .update(fullPayload)
       .eq("id", id)
       .eq("user_id", user.id);
+
+    // Fallback retry without optional contact columns if remote Supabase schema cache has not been reloaded yet
+    if (error && (error.message.includes("schema cache") || error.message.includes("contact_email") || error.message.includes("column"))) {
+      const retryResult = await supabase
+        .from("jobs")
+        .update(basePayload)
+        .eq("id", id)
+        .eq("user_id", user.id);
+      error = retryResult.error;
+    }
 
     if (error) {
       return { success: false, error: error.message };
