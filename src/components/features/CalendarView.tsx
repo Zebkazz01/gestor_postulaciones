@@ -5,6 +5,7 @@ import type { Job, JobReminder } from "@/types";
 import { createReminder, deleteReminder } from "@/actions/reminders";
 import { toast } from "@/components/ui/toast";
 import { ReminderDetailDialog } from "@/components/features/ReminderDetailDialog";
+import { UpcomingMeetingNotifier } from "@/components/features/UpcomingMeetingNotifier";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +61,13 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
   const [selectedReminder, setSelectedReminder] = useState<JobReminder | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  // Minimum date-time string (must be future date/time)
+  const minDateTimeString = new Date(
+    new Date().getTime() - new Date().getTimezoneOffset() * 60000 + 60000
+  )
+    .toISOString()
+    .slice(0, 16);
+
   // Filter reminders by selected job
   const filteredReminders = reminders.filter((r) => {
     if (selectedJobFilter === "all") return true;
@@ -91,7 +99,16 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
 
   const handleOpenDialogForDate = (date: Date) => {
     setSelectedDate(date);
-    const isoString = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+    // Default time set to 10:00 AM on selected date
+    const d = new Date(date);
+    d.setHours(10, 0, 0, 0);
+    
+    // If selected date is today/past, set to current time + 10 mins
+    if (d <= new Date()) {
+      d.setTime(new Date().getTime() + 10 * 60000);
+    }
+
+    const isoString = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
     setPrefilledDate(isoString);
@@ -106,10 +123,22 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
 
   async function handleCreateReminder(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const meetingDateStr = formData.get("meeting_date") as string;
+
+    // Validate future date
+    if (new Date(meetingDateStr) <= new Date()) {
+      toast.add({
+        title: "Fecha u hora no permitida",
+        description: "No es posible agendar reuniones en el pasado ni en el momento actual. Selecciona una fecha y hora futura.",
+        type: "warning",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const formData = new FormData(e.currentTarget);
       const result = await createReminder(formData);
 
       if (!result.success) {
@@ -122,7 +151,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
       }
 
       toast.add({
-        title: "Reunión agendada",
+        title: "Reunión agendada exitosamente",
         description: "Se ha creado el recordatorio para tu postulación.",
         type: "success",
       });
@@ -193,6 +222,9 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
 
   return (
     <div className="space-y-6">
+      {/* 15-minute Notification Banner Observer */}
+      <UpcomingMeetingNotifier reminders={reminders} />
+
       {/* Top Header & Actions Bar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-border/50 bg-card p-4 sm:p-6 shadow-sm">
         <div className="space-y-1">
@@ -201,7 +233,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
             Calendario de Reuniones
           </h2>
           <p className="text-sm text-muted-foreground">
-            Planifica entrevistas, pruebas técnicas y llamadas. Haz clic en cualquier reunión para modificarla o mover su fecha.
+            Planifica entrevistas, pruebas técnicas y llamadas. Las reuniones deben programarse en fecha y hora futura.
           </p>
         </div>
 
@@ -221,7 +253,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                 Agendar Nueva Reunión / Recordatorio
               </DialogTitle>
               <DialogDescription>
-                Asocia esta reunión a una postulación para mantener tu historial.
+                La reunión debe programarse en una fecha y hora futura.
               </DialogDescription>
             </DialogHeader>
 
@@ -259,15 +291,19 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="meeting_date">Fecha y Hora *</Label>
+                <Label htmlFor="meeting_date">Fecha y Hora Futura *</Label>
                 <Input
                   id="meeting_date"
                   name="meeting_date"
                   type="datetime-local"
+                  min={minDateTimeString}
                   defaultValue={prefilledDate}
                   required
                   disabled={isLoading}
                 />
+                <p className="text-[11px] text-muted-foreground">
+                  Solo se permiten fechas y horas posteriores al momento actual.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -443,7 +479,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
                     </button>
                   </div>
 
-                  {/* Day Reminders Badges -> Click opens ReminderDetailDialog */}
+                  {/* Day Reminders Badges */}
                   <div className="space-y-1 mt-1 flex-1 overflow-y-auto max-h-[80px]">
                     {dayReminders.map((r) => (
                       <div
@@ -467,7 +503,7 @@ export function CalendarView({ jobs, reminders }: CalendarViewProps) {
         /* Week View */
         <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-4">
           <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">
-            Reuniones de la Semana (Haz clic en un evento para modificarlo)
+            Reuniones de la Semana
           </h3>
           <div className="grid gap-3 sm:grid-cols-7">
             {[0, 1, 2, 3, 4, 5, 6].map((offset) => {

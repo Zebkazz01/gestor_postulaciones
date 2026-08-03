@@ -76,11 +76,21 @@ export async function createReminder(
       return { success: false, error: firstError };
     }
 
+    // Future date validation check
+    const meetingDateObj = new Date(parsed.data.meeting_date);
+    const now = new Date();
+    if (meetingDateObj <= now) {
+      return {
+        success: false,
+        error: "La fecha y hora de la reunión debe ser futura (posterior al momento actual).",
+      };
+    }
+
     const { error } = await supabase.from("job_reminders").insert({
       user_id: user.id,
       job_id: parsed.data.job_id,
       title: parsed.data.title,
-      meeting_date: new Date(parsed.data.meeting_date).toISOString(),
+      meeting_date: meetingDateObj.toISOString(),
       notes: parsed.data.notes || null,
     });
 
@@ -126,12 +136,22 @@ export async function updateReminder(
       return { success: false, error: firstError };
     }
 
+    // Future date validation check
+    const meetingDateObj = new Date(parsed.data.meeting_date);
+    const now = new Date();
+    if (meetingDateObj <= now) {
+      return {
+        success: false,
+        error: "La fecha y hora de la reunión debe ser futura (posterior al momento actual).",
+      };
+    }
+
     const { error } = await supabase
       .from("job_reminders")
       .update({
         job_id: parsed.data.job_id,
         title: parsed.data.title,
-        meeting_date: new Date(parsed.data.meeting_date).toISOString(),
+        meeting_date: meetingDateObj.toISOString(),
         notes: parsed.data.notes || null,
       })
       .eq("id", id)

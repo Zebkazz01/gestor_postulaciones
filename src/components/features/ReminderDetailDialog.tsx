@@ -19,7 +19,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,9 +27,7 @@ import {
   Briefcase,
   PencilSimple,
   Trash,
-  X,
   CircleNotch,
-  CheckCircle,
   CalendarBlank,
 } from "@phosphor-icons/react";
 
@@ -62,13 +59,32 @@ export function ReminderDetailDialog({
     .toISOString()
     .slice(0, 16);
 
+  const minDateTimeString = new Date(
+    new Date().getTime() - new Date().getTimezoneOffset() * 60000 + 60000
+  )
+    .toISOString()
+    .slice(0, 16);
+
   async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!reminder) return;
+
+    const formData = new FormData(e.currentTarget);
+    const meetingDateStr = formData.get("meeting_date") as string;
+
+    // Validate future date
+    if (new Date(meetingDateStr) <= new Date()) {
+      toast.add({
+        title: "Fecha u hora no permitida",
+        description: "La fecha y hora para mover la reunión debe ser futura (posterior al momento actual).",
+        type: "warning",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const formData = new FormData(e.currentTarget);
       const result = await updateReminder(reminder.id, formData);
 
       if (!result.success) {
@@ -81,8 +97,8 @@ export function ReminderDetailDialog({
       }
 
       toast.add({
-        title: "Reunión actualizada",
-        description: "Se ha modificado la fecha o detalles de la reunión.",
+        title: "Reunión reprogramada exitosamente",
+        description: "Se ha modificado la fecha y detalles de la reunión.",
         type: "success",
       });
 
@@ -272,15 +288,19 @@ export function ReminderDetailDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="meeting_date">Fecha y Hora * (Mover reunión)</Label>
+              <Label htmlFor="meeting_date">Fecha y Hora Futura * (Mover reunión)</Label>
               <Input
                 id="meeting_date"
                 name="meeting_date"
                 type="datetime-local"
+                min={minDateTimeString}
                 defaultValue={prefilledDate}
                 required
                 disabled={isLoading}
               />
+              <p className="text-[11px] text-muted-foreground">
+                La nueva fecha debe ser posterior al momento actual.
+              </p>
             </div>
 
             <div className="space-y-2">

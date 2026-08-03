@@ -192,7 +192,7 @@ diseño debe ser completamente responsivo.
 
 ---
 
-## Fase 6: Funcionalidades Avanzadas y Experiencia Interactiva 🟢 COMPLETADA
+## Fase 6: Funcionalidades Avanzadas y Notificaciones 🟢 COMPLETADA
 
 ### Prompt 6.1 — Calendario, Trazabilidad, Perfil y Seguridad 🟢
 
@@ -224,6 +224,17 @@ diseño debe ser completamente responsivo.
 
 ---
 
+### Prompt 6.3 — Validador de Fecha Futura y Notificación 15 min Antes 🟢
+
+```
+1. Implementa una validación estricta de fecha al crear o reprogramar reuniones: la fecha y hora seleccionada debe ser posterior al momento actual. Si se elige la fecha del día presente en hora pasada o un día anterior, bloquea la creación tanto en el servidor (Zod Server Action) como en el cliente con notificaciones Toast.
+2. Agrega el sistema de notificaciones automáticas `UpcomingMeetingNotifier` que detecta cuando una reunión empezará en 15 minutos o menos, desplegando un Toast de advertencia y un banner visual destacado en el calendario.
+```
+
+**Estado:** 🟢 Validador de fecha futura y sistema de alerta 15 min antes implementados con éxito.
+
+---
+
 ## Progreso General
 
 | Fase | Descripción | Estado |
@@ -233,6 +244,6 @@ diseño debe ser completamente responsivo.
 | 3 | Dashboard + Lectura | 🟢 Completada |
 | 4 | CRUD Completo | 🟢 Completada |
 | 5 | Landing + Pulido | 🟢 Completada |
-| 6 | Calendario, Trazabilidad & Correcciones | 🟢 Completada |
+| 6 | Calendario, Trazabilidad, Notificaciones & Validaciones | 🟢 Completada |
 
 > 🎉 **¡Proyecto 100% desarrollado, documentado y verificado!**
