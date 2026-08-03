@@ -127,28 +127,52 @@ export default function LoginPage() {
       });
 
       if (error) {
+        const isRateLimited =
+          error.message.toLowerCase().includes("rate limit") ||
+          error.status === 429;
+
+        if (isRateLimited) {
+          // Attempt automatic login fallback with email & password
+          const signInAttempt = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (!signInAttempt.error && signInAttempt.data.session) {
+            toast.add({
+              title: "Ingreso exitoso",
+              description: "Se omitió el envío del correo de confirmación por límite de envío y has ingresado correctamente.",
+              type: "success",
+            });
+            router.push("/dashboard");
+            router.refresh();
+            return;
+          }
+
+          // If auto login fails, switch to login tab automatically
+          setActiveTab("login");
+          toast.add({
+            title: "Límite de envíos alcanzado",
+            description: "No se pudo enviar el correo de verificación. Te hemos redirigido a 'Iniciar Sesión' para ingresar directamente con tu correo y contraseña.",
+            type: "warning",
+          });
+          return;
+        }
+
         const isAlreadyRegistered =
           error.message.toLowerCase().includes("already registered") ||
           error.message.toLowerCase().includes("already exists") ||
           error.message.toLowerCase().includes("user already") ||
           error.status === 422;
 
-        const isRateLimited =
-          error.message.toLowerCase().includes("rate limit") ||
-          error.status === 429;
-
         toast.add({
-          title: isRateLimited
-            ? "Límite de correos alcanzado"
-            : isAlreadyRegistered
+          title: isAlreadyRegistered
             ? "Esta cuenta ya existe"
             : "Error al registrarse",
-          description: isRateLimited
-            ? "Supabase ha alcanzado el límite de envío de correos para esta cuenta por seguridad. Por favor, espera 5 minutos o prueba con otro correo electrónico."
-            : isAlreadyRegistered
+          description: isAlreadyRegistered
             ? "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'."
             : error.message,
-          type: isRateLimited ? "warning" : "error",
+          type: "error",
         });
         return;
       }
