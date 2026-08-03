@@ -218,16 +218,6 @@ export default function LoginPage() {
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10 pt-12 sm:pt-0">
-        {/* Inline Center Link Back to Home */}
-        <div className="flex justify-center mb-2">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline bg-primary/10 px-3 py-1 rounded-full border border-primary/20"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" weight="bold" />
-            Volver a la página principal
-          </Link>
-        </div>
 
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xl ring-1 ring-primary/20">
           <Briefcase className="h-7 w-7" weight="bold" />
