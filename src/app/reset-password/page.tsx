@@ -15,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Briefcase, Loader2, KeyRound } from "lucide-react";
+import { Briefcase, CircleNotch, Key } from "@phosphor-icons/react";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
       }
 
       toast.add({
-        title: "¡Contraseña actualizada!",
+        title: "Contraseña actualizada",
         description: "Tu contraseña ha sido restablecida con éxito. Ingresando al dashboard...",
         type: "success",
       });
@@ -91,7 +91,7 @@ export default function ResetPasswordPage() {
         className="mb-8 flex items-center gap-2 text-2xl font-bold tracking-tight"
       >
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Briefcase className="h-5 w-5" />
+          <Briefcase className="h-5 w-5" weight="bold" />
         </div>
         PostulaYa
       </Link>
@@ -99,7 +99,7 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-md border-border/50 shadow-2xl">
         <CardHeader className="space-y-1 text-center">
           <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <KeyRound className="h-6 w-6" />
+            <Key className="h-6 w-6" weight="bold" />
           </div>
           <CardTitle className="text-2xl">Establece tu nueva contraseña</CardTitle>
           <CardDescription>
@@ -144,7 +144,7 @@ export default function ResetPasswordPage() {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                   Actualizando contraseña...
                 </>
               ) : (

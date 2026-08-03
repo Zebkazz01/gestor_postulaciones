@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Briefcase, Loader2, KeyRound } from "lucide-react";
+import { Briefcase, CircleNotch, Key } from "@phosphor-icons/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function LoginPage() {
       }
 
       toast.add({
-        title: "¡Bienvenido de vuelta!",
+        title: "Bienvenido de vuelta",
         description: "Redirigiendo al dashboard...",
         type: "success",
       });
@@ -148,7 +148,7 @@ export default function LoginPage() {
       }
 
       toast.add({
-        title: "¡Cuenta creada con éxito!",
+        title: "Cuenta creada con éxito",
         description: "Tu cuenta ha sido creada. Accediendo al dashboard...",
         type: "success",
       });
@@ -190,7 +190,7 @@ export default function LoginPage() {
       }
 
       toast.add({
-        title: "¡Correo de recuperación enviado!",
+        title: "Correo de recuperación enviado",
         description:
           "Revisa tu bandeja de entrada para hacer clic en el enlace y restablecer tu contraseña.",
         type: "success",
@@ -216,7 +216,7 @@ export default function LoginPage() {
         className="mb-8 flex items-center gap-2 text-2xl font-bold tracking-tight"
       >
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Briefcase className="h-5 w-5" />
+          <Briefcase className="h-5 w-5" weight="bold" />
         </div>
         PostulaYa
       </Link>
@@ -281,7 +281,7 @@ export default function LoginPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                       Iniciando sesión...
                     </>
                   ) : (
@@ -342,7 +342,7 @@ export default function LoginPage() {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                       Creando cuenta...
                     </>
                   ) : (
@@ -360,7 +360,7 @@ export default function LoginPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <KeyRound className="h-5 w-5" />
+              <Key className="h-5 w-5" weight="bold" />
             </div>
             <DialogTitle className="text-center">
               Recuperar contraseña
@@ -396,7 +396,7 @@ export default function LoginPage() {
               <Button type="submit" disabled={isResetLoading}>
                 {isResetLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
                     Enviando...
                   </>
                 ) : (

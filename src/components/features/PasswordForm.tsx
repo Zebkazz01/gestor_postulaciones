@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, KeyRound } from "lucide-react";
+import { CircleNotch, Key } from "@phosphor-icons/react";
 
 export function PasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +29,7 @@ export function PasswordForm() {
       }
 
       toast.add({
-        title: "¡Contraseña actualizada!",
+        title: "Contraseña actualizada",
         description: "Tu contraseña ha sido cambiada correctamente.",
         type: "success",
       });
@@ -79,12 +79,12 @@ export function PasswordForm() {
       <Button type="submit" disabled={isLoading} className="w-full gap-2">
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircleNotch className="h-4 w-4 animate-spin" />
             Actualizando...
           </>
         ) : (
           <>
-            <KeyRound className="h-4 w-4" />
+            <Key className="h-4 w-4" weight="bold" />
             Actualizar Contraseña
           </>
         )}

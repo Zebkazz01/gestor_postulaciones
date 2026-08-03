@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/features/ProfileForm";
 import { PasswordForm } from "@/components/features/PasswordForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, KeyRound, ArrowLeft } from "lucide-react";
+import { User, Key, ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 
 export default async function ProfilePage() {
@@ -29,7 +29,7 @@ export default async function ProfilePage() {
           href="/dashboard"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" weight="bold" />
           Volver a Mis Postulaciones
         </Link>
       </div>
@@ -47,7 +47,7 @@ export default async function ProfilePage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <User className="h-5 w-5" />
+                <User className="h-5 w-5" weight="bold" />
               </div>
               <div>
                 <CardTitle className="text-xl">Datos Personales</CardTitle>
@@ -71,7 +71,7 @@ export default async function ProfilePage() {
           <CardHeader>
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <KeyRound className="h-5 w-5" />
+                <Key className="h-5 w-5" weight="bold" />
               </div>
               <div>
                 <CardTitle className="text-xl">Cambiar Contraseña</CardTitle>

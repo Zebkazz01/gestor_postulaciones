@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Save, Upload, User } from "lucide-react";
+import { CircleNotch, FloppyDisk, UploadSimple, User } from "@phosphor-icons/react";
 
 interface ProfileFormProps {
   email: string;
@@ -70,7 +70,7 @@ export function ProfileForm({
       }
 
       toast.add({
-        title: "¡Perfil actualizado!",
+        title: "Perfil actualizado",
         description: "Tus datos personales fueron guardados con éxito.",
         type: "success",
       });
@@ -98,7 +98,7 @@ export function ProfileForm({
               className="h-full w-full object-cover"
             />
           ) : (
-            <User className="h-10 w-10" />
+            <User className="h-10 w-10" weight="duotone" />
           )}
         </div>
 
@@ -111,7 +111,7 @@ export function ProfileForm({
               htmlFor="avatar-upload"
               className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted hover:text-foreground transition-colors"
             >
-              <Upload className="h-3.5 w-3.5" />
+              <UploadSimple className="h-3.5 w-3.5" weight="bold" />
               Subir imagen
             </Label>
             <input
@@ -183,12 +183,12 @@ export function ProfileForm({
       <Button type="submit" disabled={isLoading} className="w-full gap-2">
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircleNotch className="h-4 w-4 animate-spin" />
             Guardando cambios...
           </>
         ) : (
           <>
-            <Save className="h-4 w-4" />
+            <FloppyDisk className="h-4 w-4" weight="bold" />
             Guardar Cambios de Perfil
           </>
         )}

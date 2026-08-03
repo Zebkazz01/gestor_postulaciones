@@ -6,11 +6,11 @@ import { Separator } from "@/components/ui/separator";
 import type { JobStatus } from "@/types";
 import {
   Clock,
-  MessageSquare,
-  Code2,
+  ChatTeardropText,
+  Code,
   Trophy,
   XCircle,
-} from "lucide-react";
+} from "@phosphor-icons/react/dist/ssr";
 
 const statCards: {
   status: JobStatus;
@@ -27,13 +27,13 @@ const statCards: {
   {
     status: "Entrevista",
     label: "Entrevistas",
-    icon: MessageSquare,
+    icon: ChatTeardropText,
     color: "text-blue-400",
   },
   {
     status: "Prueba Técnica",
     label: "Pruebas Técnicas",
-    icon: Code2,
+    icon: Code,
     color: "text-purple-400",
   },
   {
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
           >
             <CardContent className="flex items-center gap-3 p-4">
               <div className={`${color}`}>
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" weight="duotone" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{count}</p>

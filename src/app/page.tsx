@@ -5,12 +5,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Briefcase,
-  BarChart3,
-  Shield,
-  Zap,
+  ChartBar,
+  ShieldCheck,
+  Lightning,
   ArrowRight,
-  CheckCircle2,
-} from "lucide-react";
+  CheckCircle,
+  Heart,
+} from "@phosphor-icons/react/dist/ssr";
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -27,7 +28,7 @@ export default async function LandingPage() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Briefcase className="h-4 w-4" />
+              <Briefcase className="h-4 w-4" weight="bold" />
             </div>
             PostulaYa
           </Link>
@@ -57,7 +58,7 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/50 bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground animate-fade-in">
-              <Zap className="h-3.5 w-3.5 text-yellow-400" />
+              <Lightning className="h-4 w-4 text-yellow-400" weight="fill" />
               100% gratuito · Sin tarjeta de crédito
             </div>
 
@@ -83,7 +84,7 @@ export default async function LandingPage() {
                 })}
               >
                 {isLoggedIn ? "Ir al Dashboard" : "Comenzar Gratis"}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" weight="bold" />
               </Link>
             </div>
           </div>
@@ -109,12 +110,12 @@ export default async function LandingPage() {
               description="Registra cada postulación con empresa, cargo, enlace y notas. Todo organizado en un solo dashboard."
             />
             <FeatureCard
-              icon={BarChart3}
+              icon={ChartBar}
               title="Seguimiento Visual"
               description="Visualiza el estado de cada postulación: Pendiente, Entrevista, Prueba Técnica, Oferta o Rechazado."
             />
             <FeatureCard
-              icon={Shield}
+              icon={ShieldCheck}
               title="Privado y Seguro"
               description="Tus datos son solo tuyos. Autenticación segura y acceso exclusivo a tu información."
             />
@@ -138,7 +139,7 @@ export default async function LandingPage() {
                 "Sin costo, sin publicidad, sin complicaciones",
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 shrink-0 text-green-400" />
+                  <CheckCircle className="h-5 w-5 shrink-0 text-green-400" weight="fill" />
                   <span className="text-muted-foreground">{item}</span>
                 </div>
               ))}
@@ -153,7 +154,7 @@ export default async function LandingPage() {
                 })}
               >
                 {isLoggedIn ? "Ir al Dashboard" : "Empieza ahora — Es gratis"}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4" weight="bold" />
               </Link>
             </div>
           </div>
@@ -168,8 +169,8 @@ export default async function LandingPage() {
               <Briefcase className="h-4 w-4" />
               PostulaYa © {new Date().getFullYear()}
             </div>
-            <p className="text-sm text-muted-foreground">
-              Hecho con ❤️ para quienes buscan su próxima oportunidad
+            <p className="flex items-center gap-1 text-sm text-muted-foreground">
+              Hecho con <Heart className="h-4 w-4 text-red-500" weight="fill" /> para quienes buscan su próxima oportunidad
             </p>
           </div>
         </div>
@@ -191,7 +192,7 @@ function FeatureCard({
     <Card className="border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-border hover:shadow-lg hover:-translate-y-1">
       <CardContent className="p-6">
         <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="h-6 w-6" />
+          <Icon className="h-6 w-6" weight="duotone" />
         </div>
         <h3 className="mb-2 text-lg font-semibold">{title}</h3>
         <p className="text-sm leading-relaxed text-muted-foreground">

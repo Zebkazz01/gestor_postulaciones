@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Briefcase, LogOut, User, LayoutDashboard, ChevronDown } from "lucide-react";
+import { Briefcase, SignOut, User, SquaresFour, CaretDown } from "@phosphor-icons/react";
 
 interface DashboardHeaderProps {
   email: string;
@@ -35,7 +35,7 @@ export function DashboardHeader({
       await supabase.auth.signOut();
       toast.add({
         title: "Sesión cerrada",
-        description: "Hasta pronto 👋",
+        description: "Hasta pronto",
         type: "info",
       });
       router.push("/login");
@@ -58,7 +58,7 @@ export function DashboardHeader({
             className="flex items-center gap-2 font-bold tracking-tight text-lg"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Briefcase className="h-4 w-4" />
+              <Briefcase className="h-4 w-4" weight="bold" />
             </div>
             <span>PostulaYa</span>
           </Link>
@@ -101,7 +101,7 @@ export function DashboardHeader({
                   <span className="hidden text-sm font-medium sm:inline max-w-[120px] truncate">
                     {displayName}
                   </span>
-                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  <CaretDown className="h-3.5 w-3.5 text-muted-foreground" />
                 </Button>
               }
             />
@@ -114,7 +114,7 @@ export function DashboardHeader({
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <SquaresFour className="mr-2 h-4 w-4" />
                 Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
@@ -126,7 +126,7 @@ export function DashboardHeader({
                 onClick={handleSignOut}
                 className="text-destructive focus:text-destructive"
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <SignOut className="mr-2 h-4 w-4" />
                 Cerrar Sesión
               </DropdownMenuItem>
             </DropdownMenuContent>

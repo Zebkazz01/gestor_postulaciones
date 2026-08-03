@@ -22,11 +22,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Briefcase,
-  ExternalLink,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+  ArrowUpRight,
+  DotsThree,
+  PencilSimple,
+  Trash,
+} from "@phosphor-icons/react";
 
 interface JobTableProps {
   jobs: Job[];
@@ -37,7 +37,7 @@ export function JobTable({ jobs }: JobTableProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 px-6 py-16 text-center">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-          <Briefcase className="h-8 w-8 text-muted-foreground" />
+          <Briefcase className="h-8 w-8 text-muted-foreground" weight="duotone" />
         </div>
         <h3 className="mb-1 text-lg font-semibold">
           Aún no tienes postulaciones
@@ -72,7 +72,7 @@ export function JobTable({ jobs }: JobTableProps) {
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <ArrowUpRight className="h-4 w-4" />
                   </a>
                 )}
               </div>
@@ -115,7 +115,7 @@ export function JobTable({ jobs }: JobTableProps) {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      <ArrowUpRight className="h-4 w-4" />
                       Ver oferta
                     </a>
                   ) : (
@@ -151,21 +151,21 @@ function JobActions({ job }: { job: Job }) {
         <DropdownMenuTrigger
           render={
             <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
+              <DotsThree className="h-5 w-5" weight="bold" />
               <span className="sr-only">Acciones</span>
             </Button>
           }
         />
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-            <Pencil className="mr-2 h-4 w-4" />
+            <PencilSimple className="mr-2 h-4 w-4" />
             Editar
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
             className="text-destructive focus:text-destructive"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <Trash className="mr-2 h-4 w-4" />
             Eliminar
           </DropdownMenuItem>
         </DropdownMenuContent>

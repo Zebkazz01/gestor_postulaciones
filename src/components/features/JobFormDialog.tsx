@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JOB_STATUSES, type Job } from "@/types";
-import { Loader2, Plus, Pencil } from "lucide-react";
+import { CircleNotch, Plus, PencilSimple } from "@phosphor-icons/react";
 
 interface JobFormDialogProps {
   job?: Job;
@@ -96,7 +96,7 @@ export function JobFormDialog({
 
   const defaultTrigger = (
     <Button className="gap-2">
-      <Plus className="h-4 w-4" />
+      <Plus className="h-4 w-4" weight="bold" />
       Nueva Postulación
     </Button>
   );
@@ -203,17 +203,17 @@ export function JobFormDialog({
             <Button type="submit" disabled={isLoading} className="gap-2">
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <CircleNotch className="h-4 w-4 animate-spin" />
                   Guardando...
                 </>
               ) : isEditing ? (
                 <>
-                  <Pencil className="h-4 w-4" />
+                  <PencilSimple className="h-4 w-4" weight="bold" />
                   Guardar Cambios
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-4 w-4" weight="bold" />
                   Crear Postulación
                 </>
               )}
