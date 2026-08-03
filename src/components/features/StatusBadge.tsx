@@ -102,6 +102,7 @@ export function StatusBadge({ status, jobId }: StatusBadgeProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        nativeButton={false}
         render={
           <Badge
             variant="outline"

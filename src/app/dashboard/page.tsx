@@ -1,4 +1,5 @@
 import { getJobs } from "@/actions/jobs";
+import { getReminders } from "@/actions/reminders";
 import { JobTable } from "@/components/features/JobTable";
 import { JobFormDialog } from "@/components/features/JobFormDialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,6 +53,7 @@ const statCards: {
 
 export default async function DashboardPage() {
   const jobs = await getJobs();
+  const reminders = await getReminders();
 
   const counts = statCards.map((card) => ({
     ...card,
@@ -97,8 +99,8 @@ export default async function DashboardPage() {
         {jobs.length > 0 && <JobFormDialog />}
       </div>
 
-      {/* Table */}
-      <JobTable jobs={jobs} />
+      {/* Table with Reminders Traceability */}
+      <JobTable jobs={jobs} reminders={reminders} />
     </div>
   );
 }
