@@ -108,9 +108,9 @@ export function DeleteAccountCard() {
           <AlertDialogContent className="sm:max-w-lg w-full p-6 space-y-4">
             {step === "password" ? (
               <>
-                <AlertDialogHeader className="space-y-1">
+                <AlertDialogHeader className="space-y-1 text-left sm:text-left">
                   <AlertDialogTitle className="text-destructive font-bold text-lg">
-                    Paso 1: Confirma tu contraseña
+                    Paso 1: Confirms tu contraseña
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-xs text-muted-foreground">
                     Para continuar con la eliminación de tu cuenta, ingresa tu contraseña actual para verificar tu identidad.
@@ -147,15 +147,15 @@ export function DeleteAccountCard() {
             ) : (
               /* Step 2: Final Warning */
               <>
-                <AlertDialogHeader className="space-y-2 text-center sm:text-center">
+                <AlertDialogHeader className="flex flex-col items-center justify-center text-center space-y-2">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/15 text-destructive animate-bounce">
                     <Siren className="h-7 w-7" weight="bold" />
                   </div>
-                  <AlertDialogTitle className="text-center text-destructive text-xl font-black flex items-center justify-center gap-2">
+                  <AlertDialogTitle className="w-full text-center text-destructive text-xl font-black flex items-center justify-center gap-2">
                     <Siren className="h-6 w-6 text-destructive shrink-0" weight="bold" />
-                    ¡ÚLTIMA ADVERTENCIA!
+                    <span>¡ÚLTIMA ADVERTENCIA!</span>
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="text-center text-xs sm:text-sm text-foreground/90 leading-relaxed pt-1">
+                  <AlertDialogDescription className="w-full text-center text-xs sm:text-sm text-foreground/90 leading-relaxed pt-1">
                     Estás a punto de borrar <strong className="text-destructive font-bold">definitivamente</strong> tu cuenta y todas tus postulaciones. Esta acción es <strong className="text-destructive font-bold">IRREVERSIBLE</strong> y no podrás recuperar tu información.
                   </AlertDialogDescription>
                 </AlertDialogHeader>

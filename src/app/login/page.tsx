@@ -133,14 +133,22 @@ export default function LoginPage() {
           error.message.toLowerCase().includes("user already") ||
           error.status === 422;
 
+        const isRateLimited =
+          error.message.toLowerCase().includes("rate limit") ||
+          error.status === 429;
+
         toast.add({
-          title: isAlreadyRegistered
+          title: isRateLimited
+            ? "Límite de correos alcanzado"
+            : isAlreadyRegistered
             ? "Esta cuenta ya existe"
             : "Error al registrarse",
-          description: isAlreadyRegistered
+          description: isRateLimited
+            ? "Supabase ha alcanzado el límite de envío de correos para esta cuenta por seguridad. Por favor, espera 5 minutos o prueba con otro correo electrónico."
+            : isAlreadyRegistered
             ? "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'."
             : error.message,
-          type: "error",
+          type: isRateLimited ? "warning" : "error",
         });
         return;
       }
