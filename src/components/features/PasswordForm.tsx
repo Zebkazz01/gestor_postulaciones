@@ -4,7 +4,7 @@ import { useState } from "react";
 import { updatePasswordFromProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Label } from "@/components/ui/label";
 import { CircleNotch, Key } from "@phosphor-icons/react";
 import {
@@ -76,10 +76,9 @@ export function PasswordForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="new_password">Nueva Contraseña</Label>
-        <Input
+        <PasswordInput
           id="new_password"
           name="new_password"
-          type="password"
           placeholder="Contraseña segura"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
@@ -93,10 +92,9 @@ export function PasswordForm() {
 
       <div className="space-y-2">
         <Label htmlFor="confirm_password">Confirmar Nueva Contraseña</Label>
-        <Input
+        <PasswordInput
           id="confirm_password"
           name="confirm_password"
-          type="password"
           placeholder="Repite la nueva contraseña"
           required
           disabled={isLoading}

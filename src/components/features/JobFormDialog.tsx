@@ -147,24 +147,61 @@ export function JobFormDialog({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="status">Estado</Label>
-            <Select
-              name="status"
-              defaultValue={job?.status ?? "Pendiente"}
-              disabled={isLoading}
-            >
-              <SelectTrigger id="status">
-                <SelectValue placeholder="Selecciona un estado" />
-              </SelectTrigger>
-              <SelectContent>
-                {JOB_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="status">Estado</Label>
+              <Select
+                name="status"
+                defaultValue={job?.status ?? "Pendiente"}
+                disabled={isLoading}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Selecciona un estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {JOB_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Ubicación / País / Ciudad</Label>
+              <Input
+                id="location"
+                name="location"
+                placeholder="Ej: Madrid, España / Remoto"
+                defaultValue={job?.location ?? ""}
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="contact_email">Correo de Contacto</Label>
+              <Input
+                id="contact_email"
+                name="contact_email"
+                type="email"
+                placeholder="recruiter@empresa.com"
+                defaultValue={job?.contact_email ?? ""}
+                disabled={isLoading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact_phone">Teléfono / Celular</Label>
+              <Input
+                id="contact_phone"
+                name="contact_phone"
+                type="tel"
+                placeholder="+34 612 345 678"
+                defaultValue={job?.contact_phone ?? ""}
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

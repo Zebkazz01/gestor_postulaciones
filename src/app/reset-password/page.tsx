@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -115,10 +116,9 @@ export default function ResetPasswordPage() {
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">Nueva Contraseña</Label>
-              <Input
+              <PasswordInput
                 id="password"
                 name="password"
-                type="password"
                 placeholder="Contraseña segura"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -131,10 +131,9 @@ export default function ResetPasswordPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
                 placeholder="Repite tu nueva contraseña"
                 required
                 disabled={isLoading}

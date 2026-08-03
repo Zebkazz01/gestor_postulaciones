@@ -17,6 +17,9 @@ const jobSchema = z.object({
   ]) as z.ZodType<JobStatus>,
   url: z.string().url("URL inválida").optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
+  contact_email: z.string().email("Correo de contacto inválido").optional().or(z.literal("")),
+  contact_phone: z.string().optional().or(z.literal("")),
+  location: z.string().optional().or(z.literal("")),
 });
 
 export type ActionResult = {
@@ -65,6 +68,9 @@ export async function createJob(formData: FormData): Promise<ActionResult> {
       status: (formData.get("status") as string) || "Pendiente",
       url: formData.get("url") as string,
       notes: formData.get("notes") as string,
+      contact_email: formData.get("contact_email") as string,
+      contact_phone: formData.get("contact_phone") as string,
+      location: formData.get("location") as string,
     };
 
     const parsed = jobSchema.safeParse(rawData);
@@ -80,6 +86,9 @@ export async function createJob(formData: FormData): Promise<ActionResult> {
       status: parsed.data.status,
       url: parsed.data.url || null,
       notes: parsed.data.notes || null,
+      contact_email: parsed.data.contact_email || null,
+      contact_phone: parsed.data.contact_phone || null,
+      location: parsed.data.location || null,
     });
 
     if (error) {
@@ -114,6 +123,9 @@ export async function updateJob(
       status: (formData.get("status") as string) || "Pendiente",
       url: formData.get("url") as string,
       notes: formData.get("notes") as string,
+      contact_email: formData.get("contact_email") as string,
+      contact_phone: formData.get("contact_phone") as string,
+      location: formData.get("location") as string,
     };
 
     const parsed = jobSchema.safeParse(rawData);
@@ -130,6 +142,9 @@ export async function updateJob(
         status: parsed.data.status,
         url: parsed.data.url || null,
         notes: parsed.data.notes || null,
+        contact_email: parsed.data.contact_email || null,
+        contact_phone: parsed.data.contact_phone || null,
+        location: parsed.data.location || null,
       })
       .eq("id", id)
       .eq("user_id", user.id);

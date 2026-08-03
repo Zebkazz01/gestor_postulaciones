@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Job, JobStatus } from "@/types";
+import type { Job } from "@/types";
 import { JOB_STATUSES } from "@/types";
 import { StatusBadge } from "@/components/features/StatusBadge";
 import { JobFormDialog } from "@/components/features/JobFormDialog";
@@ -42,6 +42,9 @@ import {
   MagnifyingGlass,
   Funnel,
   X,
+  MapPin,
+  EnvelopeSimple,
+  PhoneCall,
 } from "@phosphor-icons/react";
 
 interface JobTableProps {
@@ -77,10 +80,14 @@ export function JobTable({ jobs }: JobTableProps) {
 
   // Filtering Math
   const filteredJobs = jobs.filter((job) => {
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      job.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.role_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (job.notes && job.notes.toLowerCase().includes(searchQuery.toLowerCase()));
+      job.company_name.toLowerCase().includes(query) ||
+      job.role_title.toLowerCase().includes(query) ||
+      (job.notes && job.notes.toLowerCase().includes(query)) ||
+      (job.location && job.location.toLowerCase().includes(query)) ||
+      (job.contact_email && job.contact_email.toLowerCase().includes(query)) ||
+      (job.contact_phone && job.contact_phone.toLowerCase().includes(query));
 
     const matchesStatus =
       statusFilter === "all" || job.status === statusFilter;
@@ -111,7 +118,7 @@ export function JobTable({ jobs }: JobTableProps) {
         <div className="relative flex-1 min-w-[200px]">
           <MagnifyingGlass className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por empresa, cargo o nota..."
+            placeholder="Buscar por empresa, cargo, ubicación, correo o teléfono..."
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
@@ -253,7 +260,8 @@ export function JobTable({ jobs }: JobTableProps) {
                 <TableHead>Empresa</TableHead>
                 <TableHead>Cargo</TableHead>
                 <TableHead>Estado</TableHead>
-                <TableHead className="hidden md:table-cell">URL</TableHead>
+                <TableHead className="hidden md:table-cell">Contacto & Ubicación</TableHead>
+                <TableHead className="hidden lg:table-cell">URL</TableHead>
                 <TableHead className="hidden lg:table-cell">Fecha</TableHead>
                 <TableHead className="w-12 text-right">Acciones</TableHead>
               </TableRow>
@@ -270,22 +278,49 @@ export function JobTable({ jobs }: JobTableProps) {
                   <TableCell>
                     <StatusBadge status={job.status} jobId={job.id} />
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell className="hidden md:table-cell text-xs space-y-1">
+                    {job.location && (
+                      <div className="flex items-center gap-1 text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span>{job.location}</span>
+                      </div>
+                    )}
+                    {job.contact_email && (
+                      <div className="flex items-center gap-1 text-muted-foreground">
+                        <EnvelopeSimple className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                        <a href={`mailto:${job.contact_email}`} className="hover:underline">
+                          {job.contact_email}
+                        </a>
+                      </div>
+                    )}
+                    {job.contact_phone && (
+                      <div className="flex items-center gap-1 text-muted-foreground">
+                        <PhoneCall className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <a href={`tel:${job.contact_phone}`} className="hover:underline">
+                          {job.contact_phone}
+                        </a>
+                      </div>
+                    )}
+                    {!job.location && !job.contact_email && !job.contact_phone && (
+                      <span className="text-muted-foreground/50">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     {job.url ? (
                       <a
                         href={job.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        <ArrowUpRight className="h-4 w-4" />
+                        <ArrowUpRight className="h-3.5 w-3.5" />
                         Ver oferta
                       </a>
                     ) : (
                       <span className="text-muted-foreground/50">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-muted-foreground text-sm">
+                  <TableCell className="hidden lg:table-cell text-muted-foreground text-xs">
                     {new Date(job.created_at).toLocaleDateString("es-ES", {
                       day: "2-digit",
                       month: "short",
@@ -320,6 +355,34 @@ export function JobTable({ jobs }: JobTableProps) {
                 <div className="flex items-center gap-2 pt-1">
                   <StatusBadge status={job.status} jobId={job.id} />
                 </div>
+
+                {/* Contact & Location Info in Card */}
+                {(job.location || job.contact_email || job.contact_phone) && (
+                  <div className="space-y-1 rounded-lg border border-border/40 bg-muted/20 p-2 text-xs">
+                    {job.location && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span>{job.location}</span>
+                      </div>
+                    )}
+                    {job.contact_email && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <EnvelopeSimple className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                        <a href={`mailto:${job.contact_email}`} className="hover:underline">
+                          {job.contact_email}
+                        </a>
+                      </div>
+                    )}
+                    {job.contact_phone && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <PhoneCall className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <a href={`tel:${job.contact_phone}`} className="hover:underline">
+                          {job.contact_phone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {job.notes && (
                   <p className="text-xs text-muted-foreground line-clamp-2 pt-1 bg-muted/30 p-2 rounded-md">

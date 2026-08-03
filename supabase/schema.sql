@@ -13,8 +13,16 @@ CREATE TABLE IF NOT EXISTS jobs (
                 CHECK (status IN ('Pendiente', 'Entrevista', 'Prueba Técnica', 'Oferta', 'Rechazado')),
   url          text,
   notes        text,
+  contact_email text,
+  contact_phone text,
+  location     text,
   created_at   timestamptz DEFAULT now()
 );
+
+-- Campos adicionales de contacto
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS contact_email text;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS contact_phone text;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS location text;
 
 -- 2. Habilitar Row Level Security
 ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;

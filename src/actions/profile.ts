@@ -107,3 +107,43 @@ export async function updatePasswordFromProfile(
     };
   }
 }
+
+export async function deleteAccount(password: string): Promise<ProfileActionResult> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user || !user.email) {
+      return { success: false, error: "No autenticado" };
+    }
+
+    // Verify password first
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: password,
+    });
+
+    if (signInError) {
+      return {
+        success: false,
+        error: "Contraseña incorrecta. No se pudo verificar tu identidad.",
+      };
+    }
+
+    // Delete user jobs data
+    await supabase.from("jobs").delete().eq("user_id", user.id);
+
+    // Sign out user session
+    await supabase.auth.signOut();
+
+    return { success: true };
+  } catch {
+    return {
+      success: false,
+      error: "Error inesperado al eliminar la cuenta",
+    };
+  }
+}

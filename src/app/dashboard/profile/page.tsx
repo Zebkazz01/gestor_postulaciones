@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/features/ProfileForm";
 import { PasswordForm } from "@/components/features/PasswordForm";
+import { DeleteAccountCard } from "@/components/features/DeleteAccountCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Key, ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
@@ -22,9 +23,9 @@ export default async function ProfilePage() {
   const avatarUrl = user.user_metadata?.avatar_url ?? "";
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
       {/* Back button */}
-      <div className="mb-6">
+      <div>
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -34,7 +35,7 @@ export default async function ProfilePage() {
         </Link>
       </div>
 
-      <div className="mb-8">
+      <div>
         <h1 className="text-3xl font-bold tracking-tight">Mi Perfil</h1>
         <p className="text-sm text-muted-foreground">
           Gestiona la información de tu cuenta, tu avatar y tu contraseña
@@ -67,24 +68,29 @@ export default async function ProfilePage() {
         </Card>
 
         {/* Card 2: Cambiar Contraseña */}
-        <Card className="border-border/50 bg-card">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Key className="h-5 w-5" weight="bold" />
+        <div className="space-y-8">
+          <Card className="border-border/50 bg-card">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Key className="h-5 w-5" weight="bold" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Cambiar Contraseña</CardTitle>
+                  <CardDescription>
+                    Establece una nueva contraseña para tu cuenta
+                  </CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-xl">Cambiar Contraseña</CardTitle>
-                <CardDescription>
-                  Establece una nueva contraseña para tu cuenta
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <PasswordForm />
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              <PasswordForm />
+            </CardContent>
+          </Card>
+
+          {/* Card 3: Eliminar Cuenta */}
+          <DeleteAccountCard />
+        </div>
       </div>
     </div>
   );

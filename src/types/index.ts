@@ -6,6 +6,9 @@ export interface Job {
   status: JobStatus;
   url: string | null;
   notes: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+  location?: string | null;
   created_at: string;
 }
 
@@ -30,4 +33,7 @@ export interface JobFormData {
   status: JobStatus;
   url?: string;
   notes?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  location?: string;
 }
