@@ -98,23 +98,41 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
+        const isAlreadyRegistered =
+          error.message.toLowerCase().includes("already registered") ||
+          error.message.toLowerCase().includes("already exists") ||
+          error.message.toLowerCase().includes("user already") ||
+          error.status === 422;
+
         toast.add({
-          title: "Error al registrarse",
-          description: error.message,
+          title: isAlreadyRegistered ? "Esta cuenta ya existe" : "Error al registrarse",
+          description: isAlreadyRegistered
+            ? "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'."
+            : error.message,
           type: "error",
         });
         return;
       }
 
+      // Supabase default protection: if user already exists, signUp returns user with empty identities array
+      if (data?.user && data.user.identities && data.user.identities.length === 0) {
+        toast.add({
+          title: "Esta cuenta ya existe",
+          description: "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'.",
+          type: "warning",
+        });
+        return;
+      }
+
       toast.add({
-        title: "¡Cuenta creada!",
-        description: "Revisa tu email para confirmar tu cuenta, o inicia sesión directamente.",
+        title: "¡Cuenta creada con éxito!",
+        description: "Tu cuenta ha sido creada. Accediendo al dashboard...",
         type: "success",
       });
 
