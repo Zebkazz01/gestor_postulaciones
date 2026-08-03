@@ -7,9 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CircleNotch, Key } from "@phosphor-icons/react";
+import {
+  PasswordStrengthChecker,
+  isPasswordStrong,
+} from "@/components/features/PasswordStrengthChecker";
 
 export function PasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,6 +22,26 @@ export function PasswordForm() {
 
     try {
       const formData = new FormData(e.currentTarget);
+      const confirmPassword = formData.get("confirm_password") as string;
+
+      if (newPassword !== confirmPassword) {
+        toast.add({
+          title: "Las contraseñas no coinciden",
+          description: "Verifica que ambas contraseñas ingresadas sean exactamente iguales.",
+          type: "error",
+        });
+        return;
+      }
+
+      if (!isPasswordStrong(newPassword)) {
+        toast.add({
+          title: "Contraseña poco segura",
+          description: "Por favor asegúrate de cumplir con todos los requisitos de seguridad indicados.",
+          type: "warning",
+        });
+        return;
+      }
+
       const result = await updatePasswordFromProfile(formData);
 
       if (!result.success) {
@@ -34,6 +59,7 @@ export function PasswordForm() {
         type: "success",
       });
 
+      setNewPassword("");
       e.currentTarget.reset();
     } catch {
       toast.add({
@@ -54,12 +80,15 @@ export function PasswordForm() {
           id="new_password"
           name="new_password"
           type="password"
-          placeholder="Mínimo 6 caracteres"
+          placeholder="Contraseña segura"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
           required
           disabled={isLoading}
-          minLength={6}
+          minLength={8}
           autoComplete="new-password"
         />
+        <PasswordStrengthChecker password={newPassword} />
       </div>
 
       <div className="space-y-2">
@@ -71,7 +100,7 @@ export function PasswordForm() {
           placeholder="Repite la nueva contraseña"
           required
           disabled={isLoading}
-          minLength={6}
+          minLength={8}
           autoComplete="new-password"
         />
       </div>

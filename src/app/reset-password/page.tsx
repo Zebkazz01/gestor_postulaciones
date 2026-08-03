@@ -16,17 +16,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Briefcase, CircleNotch, Key } from "@phosphor-icons/react";
+import {
+  PasswordStrengthChecker,
+  isPasswordStrong,
+} from "@/components/features/PasswordStrengthChecker";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [password, setPassword] = useState("");
 
   async function handleResetPassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
 
     if (password !== confirmPassword) {
@@ -39,11 +43,11 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    if (password.length < 6) {
+    if (!isPasswordStrong(password)) {
       toast.add({
-        title: "Contraseña muy corta",
-        description: "La nueva contraseña debe tener al menos 6 caracteres",
-        type: "error",
+        title: "Contraseña poco segura",
+        description: "Por favor asegúrate de cumplir con todos los requisitos de seguridad indicados.",
+        type: "warning",
       });
       setIsLoading(false);
       return;
@@ -115,12 +119,15 @@ export default function ResetPasswordPage() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Contraseña segura"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={isLoading}
-                minLength={6}
+                minLength={8}
                 autoComplete="new-password"
               />
+              <PasswordStrengthChecker password={password} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Nueva Contraseña</Label>
@@ -131,7 +138,7 @@ export default function ResetPasswordPage() {
                 placeholder="Repite tu nueva contraseña"
                 required
                 disabled={isLoading}
-                minLength={6}
+                minLength={8}
                 autoComplete="new-password"
               />
             </div>

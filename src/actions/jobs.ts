@@ -179,3 +179,38 @@ export async function deleteJob(id: string): Promise<ActionResult> {
     };
   }
 }
+
+export async function updateJobStatus(
+  id: string,
+  status: JobStatus
+): Promise<ActionResult> {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "No autenticado" };
+    }
+
+    const { error } = await supabase
+      .from("jobs")
+      .update({ status })
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch {
+    return {
+      success: false,
+      error: "Error inesperado al actualizar el estado",
+    };
+  }
+}

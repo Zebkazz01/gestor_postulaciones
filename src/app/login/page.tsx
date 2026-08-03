@@ -24,12 +24,17 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Briefcase, CircleNotch, Key } from "@phosphor-icons/react";
+import {
+  PasswordStrengthChecker,
+  isPasswordStrong,
+} from "@/components/features/PasswordStrengthChecker";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isResetLoading, setIsResetLoading] = useState(false);
   const [forgotDialogOpen, setForgotDialogOpen] = useState(false);
+  const [registerPassword, setRegisterPassword] = useState("");
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -89,18 +94,18 @@ export default function LoginPage() {
     if (password !== confirmPassword) {
       toast.add({
         title: "Las contraseñas no coinciden",
-        description: "Verifica que ambas contraseñas sean iguales",
+        description: "Verifica que ambas contraseñas sean exactamente iguales",
         type: "error",
       });
       setIsLoading(false);
       return;
     }
 
-    if (password.length < 6) {
+    if (!isPasswordStrong(password)) {
       toast.add({
-        title: "Contraseña muy corta",
-        description: "La contraseña debe tener al menos 6 caracteres",
-        type: "error",
+        title: "Contraseña poco segura",
+        description: "Por favor asegúrate de cumplir con todos los requisitos de seguridad requeridos.",
+        type: "warning",
       });
       setIsLoading(false);
       return;
@@ -132,7 +137,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Supabase default protection: if user already exists, signUp returns user with empty identities array
       if (
         data?.user &&
         data.user.identities &&
@@ -312,12 +316,15 @@ export default function LoginPage() {
                     id="register-password"
                     name="password"
                     type="password"
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Contraseña segura"
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
                     required
                     disabled={isLoading}
-                    minLength={6}
+                    minLength={8}
                     autoComplete="new-password"
                   />
+                  <PasswordStrengthChecker password={registerPassword} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="register-confirm">
@@ -330,7 +337,7 @@ export default function LoginPage() {
                     placeholder="Repite tu contraseña"
                     required
                     disabled={isLoading}
-                    minLength={6}
+                    minLength={8}
                     autoComplete="new-password"
                   />
                 </div>
