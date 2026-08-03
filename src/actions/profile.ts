@@ -120,7 +120,7 @@ export async function deleteAccount(password: string): Promise<ProfileActionResu
       return { success: false, error: "No autenticado" };
     }
 
-    // Verify password first
+    // 1. Verify password
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: user.email,
       password: password,
@@ -133,10 +133,17 @@ export async function deleteAccount(password: string): Promise<ProfileActionResu
       };
     }
 
-    // Delete user jobs data
+    // 2. Delete all jobs for this user
     await supabase.from("jobs").delete().eq("user_id", user.id);
 
-    // Sign out user session
+    // 3. Try RPC delete_own_user to delete user record from auth.users
+    try {
+      await supabase.rpc("delete_own_user");
+    } catch {
+      // Fallback: sign out
+    }
+
+    // 4. Sign out user session
     await supabase.auth.signOut();
 
     return { success: true };

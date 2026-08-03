@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [isResetLoading, setIsResetLoading] = useState(false);
   const [forgotDialogOpen, setForgotDialogOpen] = useState(false);
   const [registerPassword, setRegisterPassword] = useState("");
+  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -53,14 +54,20 @@ export default function LoginPage() {
       });
 
       if (error) {
+        const isInvalidCreds = error.message === "Invalid login credentials";
         toast.add({
-          title: "Error al iniciar sesión",
-          description:
-            error.message === "Invalid login credentials"
-              ? "Email o contraseña incorrectos"
-              : error.message,
+          title: isInvalidCreds
+            ? "Cuenta no encontrada o credenciales incorrectas"
+            : "Error al iniciar sesión",
+          description: isInvalidCreds
+            ? "No existe una cuenta activa con esta contraseña. Redirigiendo para registrarte..."
+            : error.message,
           type: "error",
         });
+
+        if (isInvalidCreds) {
+          setActiveTab("register");
+        }
         return;
       }
 
@@ -227,7 +234,7 @@ export default function LoginPage() {
       </Link>
 
       <Card className="w-full max-w-md border-border/50 shadow-2xl">
-        <Tabs defaultValue="login">
+        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as "login" | "register")}>
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-center text-2xl">
               Accede a tu cuenta

@@ -26,7 +26,7 @@ export function ThemeToggle() {
     const isDark = theme === "dark";
     const nextTheme = isDark ? "light" : "dark";
 
-    // Fallback if View Transitions API is not supported
+    // Fallback if View Transitions API is not supported in browser
     if (!document.startViewTransition) {
       setTheme(nextTheme);
       return;
@@ -62,7 +62,7 @@ export function ThemeToggle() {
           clipPath: clipPath,
         },
         {
-          duration: 500,
+          duration: 450,
           easing: "ease-in-out",
           pseudoElement: "::view-transition-new(root)",
         }
@@ -75,14 +75,14 @@ export function ThemeToggle() {
       ref={buttonRef}
       variant="ghost"
       size="icon"
-      className="h-9 w-9 relative z-50"
+      className="h-9 w-9 relative z-50 rounded-lg hover:bg-muted"
       onClick={toggleTheme}
       title={`Cambiar a modo ${theme === "dark" ? "claro" : "oscuro"}`}
     >
       {theme === "dark" ? (
-        <Sun className="h-5 w-5 text-yellow-400 transition-all" weight="fill" />
+        <Sun className="h-5 w-5 text-amber-400 transition-transform duration-300 hover:rotate-45" weight="duotone" />
       ) : (
-        <Moon className="h-5 w-5 text-slate-700 dark:text-slate-200 transition-all" weight="fill" />
+        <Moon className="h-5 w-5 text-indigo-500 transition-transform duration-300 hover:-rotate-12" weight="duotone" />
       )}
       <span className="sr-only">Cambiar tema</span>
     </Button>

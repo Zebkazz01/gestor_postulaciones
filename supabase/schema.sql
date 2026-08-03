@@ -46,3 +46,14 @@ CREATE POLICY "Usuarios pueden eliminar sus propias postulaciones"
 
 -- 4. Índice para mejorar consultas por user_id
 CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
+
+-- 5. Función SQL para que un usuario autenticado pueda eliminar su propia cuenta de auth.users
+CREATE OR REPLACE FUNCTION delete_own_user()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$;
