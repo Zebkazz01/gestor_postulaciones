@@ -75,7 +75,7 @@ export default async function LandingPage() {
               <h1 className="mb-6 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl leading-tight">
                 Gestiona tu búsqueda laboral{" "}
                 <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  en 3D y sin estrés
+                  inteligente y sin estrés
                 </span>
               </h1>
             </ScrollReveal>

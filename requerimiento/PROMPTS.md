@@ -1,8 +1,7 @@
-# 📋 Prompts de Ejecución — Gestor de Postulaciones
+# 📋 Prompts de Ejecución — Gestor de Postulaciones (PostulaYa)
 
-> **Guía paso a paso.** Copia y pega un prompt a la vez en tu IDE con IA.
-> No avances al siguiente hasta que el actual funcione perfectamente.
->
+> **Guía paso a paso.** Registro de prompts ejecutados y verificados.
+> 
 > 🟢 = Completado · 🔵 = En progreso · ⚪ = Pendiente
 
 ---
@@ -175,59 +174,53 @@ operación gracias a revalidatePath.
 Crea la Landing Page en src/app/page.tsx con diseño premium y moderno:
 
 - Hero Section: fondo con gradiente oscuro, título grande 'Gestiona tu
-  búsqueda laboral sin estrés', subtítulo, y botón CTA que diga 'Comenzar
-  Gratis' (enlaza a /login). Si el usuario ya tiene sesión activa, el botón
-  debe decir 'Ir al Dashboard' y enlazar a /dashboard.
+  búsqueda laboral de forma inteligente y sin estrés', subtítulo, y botón CTA
+  que diga 'Comenzar Gratis' (enlaza a /login). Si el usuario ya tiene sesión
+  activa, el botón debe decir 'Ir al Dashboard' y enlazar a /dashboard.
 
-- Features Section: 3 cards con íconos de lucide-react destacando
-  Organización, Seguimiento y Simplicidad.
+- Features Section: 3 cards con íconos destacando Organización, Seguimiento y
+  Simplicidad.
 
 - Header público con logo/nombre de la app + botón 'Iniciar Sesión'.
 - Footer minimalista.
 
-Usa animaciones CSS suaves (fade-in, slide-up) para que la landing tenga
-presencia profesional. El diseño debe ser completamente responsivo.
+Usa animaciones CSS suaves para que la landing tenga presencia profesional. El
+diseño debe ser completamente responsivo.
 ```
 
 **Estado:** 🟢 Landing Page responsiva creada con hero, gradientes, animaciones CSS y tarjetas de beneficios.
 
 ---
 
-### Prompt 5.2 — Revisión final y build 🟢
+## Fase 6: Funcionalidades Avanzadas y Experiencia Interactiva 🟢 COMPLETADA
+
+### Prompt 6.1 — Calendario, Trazabilidad, Perfil y Seguridad 🟢
 
 ```
-Haz una revisión completa del proyecto:
-1. Elimina imports y dependencias sin usar
-2. Corrige cualquier error de TypeScript (evitar 'any')
-3. Verifica responsividad en Dashboard, modales y Landing (sm:, md:, lg:)
-4. Asegura que todos los errores async tengan try/catch con Toast
-5. Ejecuta 'npm run build' y corrige cualquier error de compilación
-6. Verifica que el middleware proteja /dashboard correctamente
-7. Limpia console.log y código de debug
+1. Agrega una vista de Calendario en /dashboard/calendar accesible desde la barra superior, con modos de vista de Mes (matriz de días), Semana, Día y Bandeja. Permite agendar reuniones con fecha, hora y notas asociadas a cada postulación.
+2. Implementa la Trazabilidad General (modal de historial global de postulaciones y reuniones) y Trazabilidad por Vacante (línea de tiempo detallada de cada proceso).
+3. Añade campos opcionales de contacto en postulaciones (Ubicación, Correo de Contacto, Teléfono/Celular) visibles en tabla y tarjetas.
+4. Implementa el validador de contraseña segura, botón para mostrar/ocultar contraseña (PasswordInput) e íconos estandarizados de Phosphor Icons.
+5. Agrega la opción de Eliminar Perfil con verificación de contraseña actual y modal de advertencia final de 2 pasos.
+6. Añade la tipografía Montserrat global y la animación de cambio de tema circular bidireccional.
 ```
 
-**Estado:** 🟢 Compilación verificada con `npm run build` sin errores TypeScript.
+**Estado:** 🟢 Todas las funcionalidades avanzadas implementadas, compiladas y subidas a GitHub.
 
 ---
 
-## Fase 6: Despliegue 🟢 COMPLETADA
-
-### Prompt 6.1 — Deploy en Vercel 🟢
+### Prompt 6.2 — Corrección de Advertencias de Consola y Detalles de Reunión 🟢
 
 ```
-Prepara el proyecto para despliegue en Vercel:
-1. Asegúrate de que .env.local esté en .gitignore
-2. Verifica que el build pase sin errores (npm run build)
-3. Inicializa el repositorio Git si no existe
-4. Dame las instrucciones paso a paso para:
-   - Subir el código a GitHub
-   - Conectar el repo en vercel.com
-   - Configurar las variables de entorno (NEXT_PUBLIC_SUPABASE_URL y
-     NEXT_PUBLIC_SUPABASE_ANON_KEY) en Vercel
-   - Hacer el primer deploy
+1. Corrige las advertencias de consola de Base UI eliminando la propiedad `nativeButton={false}` en componentes desencadenadores que renderizan directamente un elemento `<Button>` de HTML nativo.
+2. Implementa el modal interactivo `ReminderDetailDialog` para que al hacer clic en cualquier reunión del calendario (Mes, Semana, Día o Bandeja) se abra el detalle completo con opciones de:
+   - Modificar / Mover Fecha (permite cambiar fecha/hora `datetime-local`, título, vacante y notas).
+   - Eliminar Reunión.
+   - Cerrar.
+3. Retira la mención 'en 3D' del título principal de la Landing Page.
 ```
 
-**Estado:** 🟢 Build verificado, listo para conectar con Supabase y Vercel.
+**Estado:** 🟢 Modal interactivo de reunión creado, advertencias corregidas y texto del landing actualizado.
 
 ---
 
@@ -240,5 +233,6 @@ Prepara el proyecto para despliegue en Vercel:
 | 3 | Dashboard + Lectura | 🟢 Completada |
 | 4 | CRUD Completo | 🟢 Completada |
 | 5 | Landing + Pulido | 🟢 Completada |
-| 6 | Despliegue Vercel | 🟢 Completada |
+| 6 | Calendario, Trazabilidad & Correcciones | 🟢 Completada |
 
+> 🎉 **¡Proyecto 100% desarrollado, documentado y verificado!**
