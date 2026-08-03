@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import type { Job } from "@/types";
+import type { Job, JobStatus } from "@/types";
+import { JOB_STATUSES } from "@/types";
 import { StatusBadge } from "@/components/features/StatusBadge";
 import { JobFormDialog } from "@/components/features/JobFormDialog";
 import { DeleteJobDialog } from "@/components/features/DeleteJobDialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -37,6 +39,9 @@ import {
   SquaresFour,
   CaretLeft,
   CaretRight,
+  MagnifyingGlass,
+  Funnel,
+  X,
 } from "@phosphor-icons/react";
 
 interface JobTableProps {
@@ -47,6 +52,10 @@ export function JobTable({ jobs }: JobTableProps) {
   const [viewMode, setViewMode] = useState<"table" | "cards">("table");
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   if (jobs.length === 0) {
     return (
@@ -66,36 +75,109 @@ export function JobTable({ jobs }: JobTableProps) {
     );
   }
 
+  // Filtering Math
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch =
+      job.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.role_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (job.notes && job.notes.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesStatus =
+      statusFilter === "all" || job.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
   // Pagination Math
-  const totalPages = Math.ceil(jobs.length / itemsPerPage) || 1;
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage) || 1;
   const validCurrentPage = Math.min(currentPage, totalPages);
   const startIndex = (validCurrentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, jobs.length);
-  const currentJobs = jobs.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredJobs.length);
+  const currentJobs = filteredJobs.slice(startIndex, endIndex);
+
+  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setCurrentPage(1);
+  };
 
   return (
     <div className="space-y-4">
-      {/* Controls Bar: View Toggle, Items Per Page, Counter */}
+      {/* Top Search & Filter Toolbar */}
       <div className="flex flex-col gap-3 rounded-xl border border-border/50 bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Record Counter */}
-        <div className="text-xs text-muted-foreground">
-          Mostrando <span className="font-semibold text-foreground">{startIndex + 1}</span> a{" "}
-          <span className="font-semibold text-foreground">{endIndex}</span> de{" "}
-          <span className="font-semibold text-foreground">{jobs.length}</span> postulaciones
+        {/* Search Bar */}
+        <div className="relative flex-1 min-w-[200px]">
+          <MagnifyingGlass className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por empresa, cargo o nota..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="pl-9 pr-8 h-9 text-xs"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Items Per Page Selector */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-muted-foreground hidden sm:inline">Filas:</span>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* Status Filter */}
+          <div className="flex items-center gap-1.5 min-w-[150px]">
+            <Funnel className="h-3.5 w-3.5 text-muted-foreground hidden sm:inline" />
             <Select
-              value={String(itemsPerPage)}
+              value={statusFilter}
               onValueChange={(val) => {
-                setItemsPerPage(Number(val));
+                setStatusFilter(val ?? "all");
                 setCurrentPage(1);
               }}
             >
-              <SelectTrigger className="h-8 w-16 text-xs">
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue placeholder="Estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los estados</SelectItem>
+                {JOB_STATUSES.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Reset Filters Button */}
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              className="h-9 px-2.5 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <X className="mr-1 h-3.5 w-3.5" />
+              Limpiar
+            </Button>
+          )}
+
+          {/* Rows Per Page */}
+          <div className="flex items-center gap-1 text-xs">
+            <Select
+              value={String(itemsPerPage)}
+              onValueChange={(val) => {
+                setItemsPerPage(Number(val ?? 10));
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="h-9 w-16 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -113,28 +195,57 @@ export function JobTable({ jobs }: JobTableProps) {
               variant={viewMode === "table" ? "secondary" : "ghost"}
               size="xs"
               onClick={() => setViewMode("table")}
-              className="gap-1 h-7 px-2 text-xs"
+              className="gap-1 h-8 px-2 text-xs"
               title="Vista de Tabla"
             >
               <TableIcon className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Tabla</span>
+              <span className="hidden lg:inline">Tabla</span>
             </Button>
             <Button
               variant={viewMode === "cards" ? "secondary" : "ghost"}
               size="xs"
               onClick={() => setViewMode("cards")}
-              className="gap-1 h-7 px-2 text-xs"
+              className="gap-1 h-8 px-2 text-xs"
               title="Vista de Tarjetas"
             >
               <SquaresFour className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Tarjetas</span>
+              <span className="hidden lg:inline">Tarjetas</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      {viewMode === "table" ? (
+      {/* Record Counter Info Bar */}
+      <div className="flex items-center justify-between px-1 text-xs text-muted-foreground">
+        <span>
+          {filteredJobs.length === 0 ? (
+            "No hay resultados"
+          ) : (
+            <>
+              Mostrando <span className="font-semibold text-foreground">{startIndex + 1}</span> a{" "}
+              <span className="font-semibold text-foreground">{endIndex}</span> de{" "}
+              <span className="font-semibold text-foreground">{filteredJobs.length}</span>{" "}
+              {hasActiveFilters ? `postulaciones (filtradas de ${jobs.length})` : "postulaciones"}
+            </>
+          )}
+        </span>
+      </div>
+
+      {/* Empty Filter State */}
+      {filteredJobs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-muted/20 px-6 py-12 text-center">
+          <MagnifyingGlass className="mb-3 h-8 w-8 text-muted-foreground opacity-60" />
+          <h4 className="font-semibold text-sm">No se encontraron postulaciones</h4>
+          <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+            No coinciden registros con los criterios de búsqueda o estado seleccionados.
+          </p>
+          <Button variant="outline" size="sm" onClick={clearFilters} className="mt-4 gap-1 text-xs">
+            <X className="h-3.5 w-3.5" />
+            Restablecer Filtros
+          </Button>
+        </div>
+      ) : viewMode === "table" ? (
+        /* Table View */
         <div className="rounded-xl border border-border/50 bg-card overflow-hidden">
           <Table>
             <TableHeader>
