@@ -192,7 +192,7 @@ diseño debe ser completamente responsivo.
 
 ---
 
-## Fase 6: Funcionalidades Avanzadas y Notificaciones 🟢 COMPLETADA
+## Fase 6: Funcionalidades Avanzadas y Despliegue 🟢 COMPLETADA
 
 ### Prompt 6.1 — Calendario, Trazabilidad, Perfil y Seguridad 🟢
 
@@ -235,6 +235,19 @@ diseño debe ser completamente responsivo.
 
 ---
 
+### Prompt 6.4 — Centrado de Modal, Correcciones Base UI y Guía de Vercel 🟢
+
+```
+1. Centra horizontalmente el título y el ícono de advertencia final en el modal de eliminación de cuenta.
+2. Corrige la advertencia de consola de Base UI en ProfileForm convirtiendo el campo `full_name` a un componente controlado con estado React.
+3. Maneja de forma amigable y sin bucles el mensaje `email rate limit exceeded` de Supabase Auth, añadiendo instrucciones para desactivar "Confirm email" en Supabase Dashboard.
+4. Genera la guía de despliegue en Vercel con la configuración de variables de entorno y URLs de redirección.
+```
+
+**Estado:** 🟢 Modales alineados, advertencias corregidas, cambios subidos a GitHub y guía de despliegue en Vercel generada.
+
+---
+
 ## Progreso General
 
 | Fase | Descripción | Estado |
@@ -244,6 +257,6 @@ diseño debe ser completamente responsivo.
 | 3 | Dashboard + Lectura | 🟢 Completada |
 | 4 | CRUD Completo | 🟢 Completada |
 | 5 | Landing + Pulido | 🟢 Completada |
-| 6 | Calendario, Trazabilidad, Notificaciones & Validaciones | 🟢 Completada |
+| 6 | Calendario, Trazabilidad, Vercel & Validaciones | 🟢 Completada |
 
-> 🎉 **¡Proyecto 100% desarrollado, documentado y verificado!**
+> 🎉 **¡Proyecto 100% desarrollado, documentado, listo para Vercel y verificado!**
