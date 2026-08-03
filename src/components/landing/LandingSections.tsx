@@ -50,7 +50,7 @@ export function StatsSection() {
 
 // --- Live Interactive Demo Tabs Section ---
 export function InteractiveDemoSection() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "features" | "mobile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "calendar" | "features" | "mobile">("dashboard");
 
   return (
     <section className="py-24 border-t border-border/50 relative overflow-hidden">
@@ -72,7 +72,7 @@ export function InteractiveDemoSection() {
         {/* Tab Controls */}
         <ScrollReveal delay={0.1}>
           <div className="flex justify-center mb-8">
-            <div className="inline-flex rounded-xl border border-border/50 bg-muted/40 p-1">
+            <div className="inline-flex flex-wrap justify-center rounded-xl border border-border/50 bg-muted/40 p-1 gap-1">
               <button
                 onClick={() => setActiveTab("dashboard")}
                 className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
@@ -81,7 +81,17 @@ export function InteractiveDemoSection() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <ChartBar className="h-4 w-4" /> Dashboard Inteligente
+                <ChartBar className="h-4 w-4" /> Dashboard & Trazabilidad
+              </button>
+              <button
+                onClick={() => setActiveTab("calendar")}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
+                  activeTab === "calendar"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <FolderOpen className="h-4 w-4" /> Calendario & Reuniones
               </button>
               <button
                 onClick={() => setActiveTab("features")}
@@ -120,9 +130,9 @@ export function InteractiveDemoSection() {
                   transition={{ duration: 0.3 }}
                   className="space-y-4"
                 >
-                  <h3 className="font-bold text-lg">Métricas y Pipeline en tiempo real</h3>
+                  <h3 className="font-bold text-lg">Métricas y Trazabilidad en tiempo real</h3>
                   <p className="text-sm text-muted-foreground">
-                    Obtén claridad inmediata de cuántas postulaciones están pendientes, en entrevista o con oferta recibida.
+                    Obtén claridad inmediata de cuántas postulaciones están pendientes, en entrevista o con oferta recibida, y consulta la trazabilidad cronológica unificada.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
@@ -137,6 +147,32 @@ export function InteractiveDemoSection() {
                       <p className="text-xs text-purple-500 font-semibold">Tasa de Respuesta</p>
                       <p className="text-2xl font-bold mt-1">68% Positiva</p>
                     </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === "calendar" && (
+                <motion.div
+                  key="calendar"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-4"
+                >
+                  <h3 className="font-bold text-lg">Calendario de Reuniones y Recordatorios</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Agrega entrevistas con fecha, hora y notas asociadas a cada vacante. Disponible en vistas de Mes, Semana, Día y Bandeja.
+                  </p>
+                  <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-primary">Mañana · 10:00 AM</span>
+                      <span className="text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">
+                        Programada
+                      </span>
+                    </div>
+                    <p className="font-bold text-sm">Entrevista Técnica Frontend — Google</p>
+                    <p className="text-xs text-muted-foreground italic">&ldquo;Preparar código de prueba y sistema de diseño&rdquo;</p>
                   </div>
                 </motion.div>
               )}

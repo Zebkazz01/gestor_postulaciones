@@ -242,4 +242,3 @@ Prepara el proyecto para despliegue en Vercel:
 | 5 | Landing + Pulido | 🟢 Completada |
 | 6 | Despliegue Vercel | 🟢 Completada |
 
-> 🎉 **¡Proyecto 100% desarrollado y verificado!**
