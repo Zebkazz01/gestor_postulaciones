@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { PasswordStrengthChecker, isPasswordStrong } from "@/components/features
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CircleNotch, Warning, Briefcase, EnvelopeSimple, Key, CheckCircle } from "@phosphor-icons/react";
+import { CircleNotch, Warning, Briefcase, EnvelopeSimple, ArrowLeft } from "@phosphor-icons/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -205,7 +206,18 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-card to-background relative overflow-hidden">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10">
+      {/* Top Navigation Back to Home Button */}
+      <div className="absolute top-4 left-4 z-20 sm:top-6 sm:left-8">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-card/60 backdrop-blur-md px-3.5 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 shadow-sm transition-all"
+        >
+          <ArrowLeft className="h-4 w-4" weight="bold" />
+          Volver al Inicio
+        </Link>
+      </div>
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10 pt-8 sm:pt-0">
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xl ring-1 ring-primary/20">
           <Briefcase className="h-7 w-7" weight="bold" />
         </div>
