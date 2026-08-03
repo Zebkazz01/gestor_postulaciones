@@ -27,6 +27,7 @@ export function ProfileForm({
   initialAvatarUrl,
 }: ProfileFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [fullName, setFullName] = useState(initialFullName);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +57,7 @@ export function ProfileForm({
 
     try {
       const formData = new FormData(e.currentTarget);
+      formData.set("full_name", fullName);
       formData.set("avatar_url", avatarUrl);
 
       const result = await updateProfile(formData);
@@ -163,7 +165,8 @@ export function ProfileForm({
           id="full_name"
           name="full_name"
           placeholder="Ej: María García"
-          defaultValue={initialFullName}
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
           disabled={isLoading}
         />
       </div>
@@ -191,7 +194,8 @@ export function ProfileForm({
             <FloppyDisk className="h-4 w-4" weight="bold" />
             Guardar Cambios de Perfil
           </>
-        )}
+        )
+      }
       </Button>
     </form>
   );
