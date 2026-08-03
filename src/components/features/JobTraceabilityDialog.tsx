@@ -157,7 +157,11 @@ export function JobTraceabilityDialog({
                             : "bg-primary text-primary-foreground border-primary shadow-xs animate-pulse"
                         }`}
                       >
-                        {isPast ? "✓" : "•"}
+                        {isPast ? (
+                          <CheckCircle className="h-3 w-3" weight="bold" />
+                        ) : (
+                          <Clock className="h-3 w-3" weight="bold" />
+                        )}
                       </div>
 
                       <div className="rounded-2xl border border-border/50 bg-card p-4 space-y-2 shadow-2xs">

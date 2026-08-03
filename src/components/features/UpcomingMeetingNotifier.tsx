@@ -38,7 +38,7 @@ export function UpcomingMeetingNotifier({
             });
 
             toast.add({
-              title: `🔔 ¡Reunión próxima! (En menos de 15 min)`,
+              title: `¡Reunión próxima! (En menos de 15 min)`,
               description: `"${reminder.title}" con ${reminder.jobs?.company_name || "la empresa"} a las ${formattedTime}.`,
               type: "warning",
             });

@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CircleNotch, Trash, WarningOctagon, ArrowLeft } from "@phosphor-icons/react";
+import { CircleNotch, Trash, WarningOctagon, ArrowLeft, Siren } from "@phosphor-icons/react";
 
 export function DeleteAccountCard() {
   const router = useRouter();
@@ -98,7 +98,6 @@ export function DeleteAccountCard() {
           else setOpen(true);
         }}>
           <AlertDialogTrigger
-            nativeButton={false}
             render={
               <Button variant="destructive" className="w-full gap-2 font-medium">
                 <Trash className="h-4 w-4" weight="bold" />
@@ -106,19 +105,19 @@ export function DeleteAccountCard() {
               </Button>
             }
           />
-          <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogContent className="sm:max-w-lg w-full p-6 space-y-4">
             {step === "password" ? (
               <>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-destructive">
+                <AlertDialogHeader className="space-y-1">
+                  <AlertDialogTitle className="text-destructive font-bold text-lg">
                     Paso 1: Confirma tu contraseña
                   </AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogDescription className="text-xs text-muted-foreground">
                     Para continuar con la eliminación de tu cuenta, ingresa tu contraseña actual para verificar tu identidad.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
-                <form onSubmit={handleProceedToWarning} className="space-y-4 py-2">
+                <form onSubmit={handleProceedToWarning} className="space-y-4 pt-2">
                   <div className="space-y-2">
                     <Label htmlFor="delete-password">Contraseña actual</Label>
                     <PasswordInput
@@ -131,7 +130,7 @@ export function DeleteAccountCard() {
                     />
                   </div>
 
-                  <AlertDialogFooter className="pt-2">
+                  <AlertDialogFooter className="pt-3 border-t border-border/40">
                     <AlertDialogCancel disabled={isLoading} onClick={resetModal}>
                       Cancelar
                     </AlertDialogCancel>
@@ -148,29 +147,30 @@ export function DeleteAccountCard() {
             ) : (
               /* Step 2: Final Warning */
               <>
-                <AlertDialogHeader>
-                  <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/15 text-destructive animate-bounce">
-                    <WarningOctagon className="h-7 w-7" weight="fill" />
+                <AlertDialogHeader className="space-y-2 text-center sm:text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/15 text-destructive animate-bounce">
+                    <Siren className="h-7 w-7" weight="bold" />
                   </div>
-                  <AlertDialogTitle className="text-center text-destructive text-xl font-extrabold">
-                    🚨 ¡ÚLTIMA ADVERTENCIA!
+                  <AlertDialogTitle className="text-center text-destructive text-xl font-black flex items-center justify-center gap-2">
+                    <Siren className="h-6 w-6 text-destructive shrink-0" weight="bold" />
+                    ¡ÚLTIMA ADVERTENCIA!
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="text-center text-sm text-foreground/90 pt-1 leading-relaxed">
-                    Estás a punto de borrar <strong className="text-destructive">definitivamente</strong> tu cuenta y todas tus postulaciones. Esta acción es <strong className="text-destructive">IRREVERSIBLE</strong> y no podrás recuperar tu información.
+                  <AlertDialogDescription className="text-center text-xs sm:text-sm text-foreground/90 leading-relaxed pt-1">
+                    Estás a punto de borrar <strong className="text-destructive font-bold">definitivamente</strong> tu cuenta y todas tus postulaciones. Esta acción es <strong className="text-destructive font-bold">IRREVERSIBLE</strong> y no podrás recuperar tu información.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
 
-                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive font-medium text-center my-2">
+                <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive font-semibold text-center my-1">
                   ¿Estás 100% seguro de que deseas proceder?
                 </div>
 
-                <AlertDialogFooter className="pt-2 flex-col sm:flex-row gap-2">
+                <AlertDialogFooter className="pt-3 border-t border-border/40 flex flex-col-reverse sm:flex-row justify-end gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setStep("password")}
                     disabled={isLoading}
-                    className="gap-1"
+                    className="w-full sm:w-auto gap-1 text-xs"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Volver
@@ -180,7 +180,7 @@ export function DeleteAccountCard() {
                     variant="destructive"
                     onClick={handleDeleteAccount}
                     disabled={isLoading}
-                    className="gap-2 font-bold"
+                    className="w-full sm:w-auto text-xs sm:text-sm font-bold gap-2"
                   >
                     {isLoading ? (
                       <>
@@ -188,7 +188,7 @@ export function DeleteAccountCard() {
                         Eliminando cuenta...
                       </>
                     ) : (
-                      "SÍ, ELIMINAR CUENTA DEFINITIVAMENTE"
+                      "Sí, eliminar cuenta definitivamente"
                     )}
                   </Button>
                 </AlertDialogFooter>
