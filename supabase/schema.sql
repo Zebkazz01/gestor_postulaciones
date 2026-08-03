@@ -1,12 +1,12 @@
 -- ============================================
--- Gestor de Postulaciones — Schema SQL
--- Ejecutar en Supabase SQL Editor
+-- Gestor de Postulaciones — Schema SQL Idempotente
+-- Copiar y Ejecutar en Supabase SQL Editor
 -- ============================================
 
--- 1. Crear la tabla jobs
+-- 1. Tabla jobs
 CREATE TABLE IF NOT EXISTS jobs (
-  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id     uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id      uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   company_name text NOT NULL,
   role_title   text NOT NULL,
   status       text NOT NULL DEFAULT 'Pendiente'
@@ -19,35 +19,39 @@ CREATE TABLE IF NOT EXISTS jobs (
   created_at   timestamptz DEFAULT now()
 );
 
--- Campos adicionales de contacto
+-- Asegurar existencia de columnas opcionales de contacto
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS contact_email text;
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS contact_phone text;
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS location text;
 
--- 2. Habilitar Row Level Security
+-- 2. Habilitar Row Level Security en jobs
 ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
 
--- 3. Políticas RLS
+-- 3. Políticas RLS de jobs (Idempotentes con DROP IF EXISTS)
+DROP POLICY IF EXISTS "Usuarios solo ven sus postulaciones" ON jobs;
 CREATE POLICY "Usuarios solo ven sus postulaciones"
   ON jobs FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden insertar sus propias postulaciones" ON jobs;
 CREATE POLICY "Usuarios pueden insertar sus propias postulaciones"
   ON jobs FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden actualizar sus propias postulaciones" ON jobs;
 CREATE POLICY "Usuarios pueden actualizar sus propias postulaciones"
   ON jobs FOR UPDATE
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Usuarios pueden eliminar sus propias postulaciones" ON jobs;
 CREATE POLICY "Usuarios pueden eliminar sus propias postulaciones"
   ON jobs FOR DELETE
   USING (auth.uid() = user_id);
 
--- 4. Índice para mejorar consultas por user_id
+-- Índices de jobs
 CREATE INDEX IF NOT EXISTS idx_jobs_user_id ON jobs(user_id);
 
--- 5. Función SQL para que un usuario autenticado pueda eliminar su propia cuenta de auth.users
+-- 4. Función SQL para eliminar propia cuenta en auth.users
 CREATE OR REPLACE FUNCTION delete_own_user()
 RETURNS void
 LANGUAGE plpgsql
@@ -58,7 +62,7 @@ BEGIN
 END;
 $$;
 
--- 6. Tabla para Reuniones y Recordatorios vinculados a postulaciones
+-- 5. Tabla job_reminders (Reuniones y Recordatorios del Calendario)
 CREATE TABLE IF NOT EXISTS job_reminders (
   id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id      uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -71,6 +75,7 @@ CREATE TABLE IF NOT EXISTS job_reminders (
 
 ALTER TABLE job_reminders ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Usuarios gestionan sus propios recordatorios" ON job_reminders;
 CREATE POLICY "Usuarios gestionan sus propios recordatorios"
   ON job_reminders FOR ALL
   USING (auth.uid() = user_id)
@@ -78,3 +83,6 @@ CREATE POLICY "Usuarios gestionan sus propios recordatorios"
 
 CREATE INDEX IF NOT EXISTS idx_job_reminders_user_id ON job_reminders(user_id);
 CREATE INDEX IF NOT EXISTS idx_job_reminders_job_id ON job_reminders(job_id);
+
+-- 6. Notificar a PostgREST para recargar la caché del esquema inmediatamente
+NOTIFY pgrst, 'reload schema';
