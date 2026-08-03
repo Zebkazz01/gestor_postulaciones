@@ -19,7 +19,11 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <DashboardHeader email={user.email ?? "Usuario"} />
+      <DashboardHeader
+        email={user.email ?? "Usuario"}
+        fullName={user.user_metadata?.full_name}
+        avatarUrl={user.user_metadata?.avatar_url}
+      />
       <main className="flex-1">{children}</main>
     </div>
   );

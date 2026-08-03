@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Briefcase,
@@ -30,15 +31,18 @@ export default async function LandingPage() {
             </div>
             PostulaYa
           </Link>
-          <Link
-            href={isLoggedIn ? "/dashboard" : "/login"}
-            className={buttonVariants({
-              variant: isLoggedIn ? "default" : "outline",
-              size: "sm",
-            })}
-          >
-            {isLoggedIn ? "Ir al Dashboard" : "Iniciar Sesión"}
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link
+              href={isLoggedIn ? "/dashboard" : "/login"}
+              className={buttonVariants({
+                variant: isLoggedIn ? "default" : "outline",
+                size: "sm",
+              })}
+            >
+              {isLoggedIn ? "Ir al Dashboard" : "Iniciar Sesión"}
+            </Link>
+          </div>
         </div>
       </header>
 
