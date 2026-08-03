@@ -28,12 +28,30 @@ import { Loader2, Plus, Pencil } from "lucide-react";
 interface JobFormDialogProps {
   job?: Job;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function JobFormDialog({ job, trigger }: JobFormDialogProps) {
-  const [open, setOpen] = useState(false);
+export function JobFormDialog({
+  job,
+  trigger,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
+}: JobFormDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!job;
+
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      externalOnOpenChange?.(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -85,10 +103,12 @@ export function JobFormDialog({ job, trigger }: JobFormDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        nativeButton={!trigger}
-        render={(trigger ?? defaultTrigger) as React.ReactElement}
-      />
+      {!isControlled && (
+        <DialogTrigger
+          nativeButton={!trigger}
+          render={(trigger ?? defaultTrigger) as React.ReactElement}
+        />
+      )}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>

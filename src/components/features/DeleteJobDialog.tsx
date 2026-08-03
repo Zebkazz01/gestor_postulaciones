@@ -19,16 +19,31 @@ import { Loader2 } from "lucide-react";
 interface DeleteJobDialogProps {
   jobId: string;
   companyName: string;
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function DeleteJobDialog({
   jobId,
   companyName,
   trigger,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
 }: DeleteJobDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const isControlled = externalOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+
+  const setOpen = (value: boolean) => {
+    if (isControlled) {
+      externalOnOpenChange?.(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
 
   async function handleDelete() {
     setIsLoading(true);
@@ -65,10 +80,12 @@ export function DeleteJobDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger
-        nativeButton={false}
-        render={trigger as React.ReactElement}
-      />
+      {!isControlled && trigger && (
+        <AlertDialogTrigger
+          nativeButton={false}
+          render={trigger as React.ReactElement}
+        />
+      )}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Eliminar postulación?</AlertDialogTitle>
