@@ -2,41 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
+import { PasswordStrengthChecker, isPasswordStrong } from "@/components/features/PasswordStrengthChecker";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Briefcase, CircleNotch, Key } from "@phosphor-icons/react";
-import {
-  PasswordStrengthChecker,
-  isPasswordStrong,
-} from "@/components/features/PasswordStrengthChecker";
+import { CircleNotch, Warning, Briefcase, EnvelopeSimple, Key, CheckCircle } from "@phosphor-icons/react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isResetLoading, setIsResetLoading] = useState(false);
-  const [forgotDialogOpen, setForgotDialogOpen] = useState(false);
-  const [registerPassword, setRegisterPassword] = useState("");
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [rateLimitError, setRateLimitError] = useState(false);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,17 +39,13 @@ export default function LoginPage() {
         const isInvalidCreds = error.message === "Invalid login credentials";
         toast.add({
           title: isInvalidCreds
-            ? "Cuenta no encontrada o credenciales incorrectas"
+            ? "Correo o contraseña incorrectos"
             : "Error al iniciar sesión",
           description: isInvalidCreds
-            ? "No existe una cuenta activa con esta contraseña. Redirigiendo para registrarte..."
+            ? "No se encontró una cuenta activa con esas credenciales. Verifica tus datos o regístrate si no tienes cuenta."
             : error.message,
           type: "error",
         });
-
-        if (isInvalidCreds) {
-          setActiveTab("register");
-        }
         return;
       }
 
@@ -93,6 +71,7 @@ export default function LoginPage() {
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
+    setRateLimitError(false);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -132,7 +111,9 @@ export default function LoginPage() {
           error.status === 429;
 
         if (isRateLimited) {
-          // Attempt automatic login fallback with email & password
+          setRateLimitError(true);
+
+          // Try automatic sign in if account was already created
           const signInAttempt = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -141,7 +122,7 @@ export default function LoginPage() {
           if (!signInAttempt.error && signInAttempt.data.session) {
             toast.add({
               title: "Ingreso exitoso",
-              description: "Se omitió el envío del correo de confirmación por límite de envío y has ingresado correctamente.",
+              description: "Has ingresado correctamente a tu cuenta.",
               type: "success",
             });
             router.push("/dashboard");
@@ -149,11 +130,9 @@ export default function LoginPage() {
             return;
           }
 
-          // If auto login fails, switch to login tab automatically
-          setActiveTab("login");
           toast.add({
-            title: "Límite de envíos alcanzado",
-            description: "No se pudo enviar el correo de verificación. Te hemos redirigido a 'Iniciar Sesión' para ingresar directamente con tu correo y contraseña.",
+            title: "Límite de correos en Supabase",
+            description: "Supabase ha bloqueado temporalmente el envío de correos. Lee las instrucciones en pantalla para desbloquearlo.",
             type: "warning",
           });
           return;
@@ -170,10 +149,14 @@ export default function LoginPage() {
             ? "Esta cuenta ya existe"
             : "Error al registrarse",
           description: isAlreadyRegistered
-            ? "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'."
+            ? "Este correo electrónico ya está registrado. Inicia sesión en la pestaña 'Iniciar Sesión'."
             : error.message,
           type: "error",
         });
+
+        if (isAlreadyRegistered) {
+          setActiveTab("login");
+        }
         return;
       }
 
@@ -185,20 +168,30 @@ export default function LoginPage() {
         toast.add({
           title: "Esta cuenta ya existe",
           description:
-            "Este correo electrónico ya está registrado. Por favor, inicia sesión en la pestaña de 'Iniciar Sesión'.",
+            "Este correo electrónico ya está registrado. Inicia sesión en la pestaña 'Iniciar Sesión'.",
           type: "warning",
         });
+        setActiveTab("login");
+        return;
+      }
+
+      // If user session is created immediately (Confirm email is off in Supabase)
+      if (data?.session) {
+        toast.add({
+          title: "Cuenta creada exitosamente",
+          description: "Ingresando a tu panel...",
+          type: "success",
+        });
+        router.push("/dashboard");
+        router.refresh();
         return;
       }
 
       toast.add({
-        title: "Cuenta creada con éxito",
-        description: "Tu cuenta ha sido creada. Accediendo al dashboard...",
+        title: "Registro iniciado",
+        description: "Revisa tu bandeja de entrada para confirmar tu correo o ingresa con tu contraseña.",
         type: "success",
       });
-
-      router.push("/dashboard");
-      router.refresh();
     } catch {
       toast.add({
         title: "Error inesperado",
@@ -210,253 +203,177 @@ export default function LoginPage() {
     }
   }
 
-  async function handleForgotPassword(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsResetLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("reset-email") as string;
-
-    try {
-      const supabase = createClient();
-      const origin = window.location.origin;
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${origin}/auth/callback?next=/reset-password`,
-      });
-
-      if (error) {
-        toast.add({
-          title: "Error al enviar correo",
-          description: error.message,
-          type: "error",
-        });
-        return;
-      }
-
-      toast.add({
-        title: "Correo de recuperación enviado",
-        description:
-          "Revisa tu bandeja de entrada para hacer clic en el enlace y restablecer tu contraseña.",
-        type: "success",
-      });
-
-      setForgotDialogOpen(false);
-    } catch {
-      toast.add({
-        title: "Error inesperado",
-        description: "Inténtalo de nuevo más tarde",
-        type: "error",
-      });
-    } finally {
-      setIsResetLoading(false);
-    }
-  }
-
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4">
-      {/* Logo / Brand */}
-      <Link
-        href="/"
-        className="mb-8 flex items-center gap-2 text-2xl font-bold tracking-tight"
-      >
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Briefcase className="h-5 w-5" weight="bold" />
+    <div className="flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-card to-background relative overflow-hidden">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10">
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-xl ring-1 ring-primary/20">
+          <Briefcase className="h-7 w-7" weight="bold" />
         </div>
-        PostulaYa
-      </Link>
+        <h2 className="text-3xl font-black tracking-tight text-foreground">
+          PostulaYa
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Gestor Inteligente de Postulaciones Laborales
+        </p>
+      </div>
 
-      <Card className="w-full max-w-md border-border/50 shadow-2xl">
-        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as "login" | "register")}>
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-center text-2xl">
-              Accede a tu cuenta
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10 px-4">
+        <Card className="border-border/50 bg-card/80 backdrop-blur-xl shadow-2xl">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-center text-xl font-bold">
+              Bienvenido
             </CardTitle>
-            <CardDescription className="text-center">
-              Gestiona tus postulaciones laborales desde un solo lugar
+            <CardDescription className="text-center text-xs">
+              Ingresa tus datos para acceder a tu panel de postulaciones
             </CardDescription>
-            <TabsList className="mt-4 grid w-full grid-cols-2">
-              <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
-              <TabsTrigger value="register">Registrarse</TabsTrigger>
-            </TabsList>
           </CardHeader>
-
           <CardContent>
-            {/* Sign In Form */}
-            <TabsContent value="login" className="mt-0">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
-                  <Input
-                    id="login-email"
-                    name="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    required
-                    disabled={isLoading}
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="login-password">Contraseña</Label>
-                    <button
-                      type="button"
-                      onClick={() => setForgotDialogOpen(true)}
-                      className="text-xs text-primary hover:underline"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </button>
+            <Tabs
+              value={activeTab}
+              onValueChange={(val) => {
+                setActiveTab(val as "login" | "register");
+                setRateLimitError(false);
+              }}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="login" className="text-xs font-semibold">
+                  Iniciar Sesión
+                </TabsTrigger>
+                <TabsTrigger value="register" className="text-xs font-semibold">
+                  Registrarse
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Login Tab */}
+              <TabsContent value="login">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email">Correo electrónico</Label>
+                    <div className="relative">
+                      <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="login-email"
+                        name="email"
+                        type="email"
+                        placeholder="tu@email.com"
+                        className="pl-9"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
                   </div>
-                  <PasswordInput
-                    id="login-password"
-                    name="password"
-                    placeholder="••••••••"
-                    required
-                    disabled={isLoading}
-                    autoComplete="current-password"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                  size="lg"
-                >
-                  {isLoading ? (
-                    <>
-                      <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
-                      Iniciando sesión...
-                    </>
-                  ) : (
-                    "Iniciar Sesión"
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
 
-            {/* Sign Up Form */}
-            <TabsContent value="register" className="mt-0">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="register-email">Email</Label>
-                  <Input
-                    id="register-email"
-                    name="email"
-                    type="email"
-                    placeholder="tu@email.com"
-                    required
-                    disabled={isLoading}
-                    autoComplete="email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-password">Contraseña</Label>
-                  <PasswordInput
-                    id="register-password"
-                    name="password"
-                    placeholder="Contraseña segura"
-                    value={registerPassword}
-                    onChange={(e) => setRegisterPassword(e.target.value)}
-                    required
-                    disabled={isLoading}
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
-                  <PasswordStrengthChecker password={registerPassword} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="register-confirm">
-                    Confirmar Contraseña
-                  </Label>
-                  <PasswordInput
-                    id="register-confirm"
-                    name="confirmPassword"
-                    placeholder="Repite tu contraseña"
-                    required
-                    disabled={isLoading}
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isLoading}
-                  size="lg"
-                >
-                  {isLoading ? (
-                    <>
-                      <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
-                      Creando cuenta...
-                    </>
-                  ) : (
-                    "Crear Cuenta Gratis"
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="login-password">Contraseña</Label>
+                      <a
+                        href="/reset-password"
+                        className="text-xs font-semibold text-primary hover:underline"
+                      >
+                        ¿Olvidaste tu clave?
+                      </a>
+                    </div>
+                    <PasswordInput
+                      id="login-password"
+                      name="password"
+                      placeholder="••••••••"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full font-bold" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
+                        Ingresando...
+                      </>
+                    ) : (
+                      "Iniciar Sesión"
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              {/* Register Tab */}
+              <TabsContent value="register">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  {rateLimitError && (
+                    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs space-y-2 text-amber-600 dark:text-amber-400">
+                      <div className="font-bold text-xs flex items-center gap-1.5">
+                        <Warning className="h-4 w-4 shrink-0" />
+                        Límite de correos en Supabase Auth
+                      </div>
+                      <p className="leading-relaxed">
+                        Supabase impone un límite por hora para enviar correos de confirmación. Para solucionarlo y registrarte al instante sin esperar correo:
+                      </p>
+                      <div className="pt-1 border-t border-amber-500/20 space-y-1">
+                        <p className="font-semibold">En tu Supabase Dashboard:</p>
+                        <p className="font-mono text-[11px] bg-background/50 p-2 rounded border border-border/40">
+                          Authentication ➔ Providers ➔ Email ➔ Desactivar &quot;Confirm email&quot;
+                        </p>
+                      </div>
+                    </div>
                   )}
-                </Button>
-              </form>
-            </TabsContent>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="register-email">Correo electrónico</Label>
+                    <div className="relative">
+                      <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="register-email"
+                        name="email"
+                        type="email"
+                        placeholder="tu@email.com"
+                        className="pl-9"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="register-password">Contraseña segura</Label>
+                    <PasswordInput
+                      id="register-password"
+                      name="password"
+                      placeholder="••••••••"
+                      value={signUpPassword}
+                      onChange={(e) => setSignUpPassword(e.target.value)}
+                      required
+                      disabled={isLoading}
+                    />
+                    <PasswordStrengthChecker password={signUpPassword} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm-password">Confirmar contraseña</Label>
+                    <PasswordInput
+                      id="confirm-password"
+                      name="confirmPassword"
+                      placeholder="••••••••"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full font-bold" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
+                        Creando cuenta...
+                      </>
+                    ) : (
+                      "Crear Cuenta"
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
           </CardContent>
-        </Tabs>
-      </Card>
-
-      {/* Forgot Password Dialog */}
-      <Dialog open={forgotDialogOpen} onOpenChange={setForgotDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Key className="h-5 w-5" weight="bold" />
-            </div>
-            <DialogTitle className="text-center">
-              Recuperar contraseña
-            </DialogTitle>
-            <DialogDescription className="text-center">
-              Ingresa tu correo electrónico registrado y te enviaremos un enlace
-              para cambiar tu contraseña.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
-            <div className="space-y-2">
-              <Label htmlFor="reset-email">Correo Electrónico</Label>
-              <Input
-                id="reset-email"
-                name="reset-email"
-                type="email"
-                placeholder="tu@email.com"
-                required
-                disabled={isResetLoading}
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setForgotDialogOpen(false)}
-                disabled={isResetLoading}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isResetLoading}>
-                {isResetLoading ? (
-                  <>
-                    <CircleNotch className="mr-2 h-4 w-4 animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  "Enviar Enlace"
-                )}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      <p className="mt-6 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground transition-colors">
-          ← Volver al inicio
-        </Link>
-      </p>
+        </Card>
+      </div>
     </div>
   );
 }
